@@ -1,7 +1,6 @@
 package tests;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 
 public abstract class Money {
 	protected final int decimalNumber;
@@ -25,4 +24,6 @@ public abstract class Money {
 	public String toString(){
 		return value;
 	}
+	
+	//TODO equals, hashcode, money-to-money add/subtract, money-to-constant multuply/divide
 }

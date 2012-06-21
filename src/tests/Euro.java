@@ -7,6 +7,6 @@ public class Euro extends Money {
 	
 	@Override
 	public String toString(){
-		return "EUR" + super.toString();
+		return "EUR " + super.toString();
 	}
 }

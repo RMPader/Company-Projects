@@ -12,21 +12,39 @@ public class Tests {
 	@Before
 	public void setUp(){
 		php = MoneyFactory.create("PHP 333.00");
-		eur = MoneyFactory.create("USD 1.01");
-		usd = MoneyFactory.create("EUR 1.20");
+		eur = MoneyFactory.create("EUR 1.01");
+		usd = MoneyFactory.create("USD 1.20");
 	}
 	
 	@Test	
 	public void valueOfPhp() {
 		assertEquals(new BigDecimal("333.00"), php.getValue());
-	}	
+	}
+	
 	@Test
 	public void valueOfEur() {
 		assertEquals(new BigDecimal("1.01"), eur.getValue());
 	}
+	
 	@Test
 	public void valueOfUsd() {
 		assertEquals(new BigDecimal("1.20"), usd.getValue());
 	}
+	
+	@Test	
+	public void stringOfPHP() {
+		assertEquals("PHP 333.00", php.toString());
+	}
+	
+	@Test
+	public void stringOfEur() {
+		assertEquals("EUR 1.01", eur.toString());
+	}
+	
+	@Test
+	public void stringOfUsd() {
+		assertEquals("USD 1.20", usd.toString());
+	}
+	
 	
 }

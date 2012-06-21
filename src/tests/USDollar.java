@@ -7,6 +7,6 @@ public class USDollar extends Money {
 	
 	@Override
 	public String toString(){
-		return "USD" + super.toString();
+		return "USD " + super.toString();
 	}
 }

@@ -7,6 +7,6 @@ public class PHPeso extends Money {
 	
 	@Override
 	public String toString(){
-		return "PHP" + super.toString();
+		return "PHP " + super.toString();
 	}
 }
