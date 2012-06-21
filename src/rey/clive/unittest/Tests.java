@@ -9,14 +9,16 @@ import org.junit.Test;
 
 import rey.clive.model.Money;
 import rey.clive.model.MoneyFactory;
+import rey.clive.model.MoneyFactoryImpl;
 
 public class Tests {
 	Money php,eur,usd;
 	@Before
 	public void setUp(){
-		php = MoneyFactory.create("PHP 333.00");
-		eur = MoneyFactory.create("EUR 1.01");
-		usd = MoneyFactory.create("USD 1.20");
+		MoneyFactory moneyFactory = new MoneyFactoryImpl();
+		php = moneyFactory.createMoney("PHP 333.00");
+		eur = moneyFactory.createMoney("EUR 1.01");
+		usd = moneyFactory.createMoney("USD 1.20");
 	}
 	
 	@Test	

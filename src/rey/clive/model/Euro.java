@@ -1,13 +1,15 @@
 package rey.clive.model;
 
-
-public class Euro extends Money {
-	public Euro(String value){
-		super(value);
+public class Euro extends Money
+{
+	public Euro(Builder builder)
+	{
+		super(builder);
 	}
-	
+
 	@Override
-	public String toString(){
-		return "EUR " + super.toString();
+	public String toString()
+	{
+		return Currency.EUR + " " + super.toString();
 	}
 }
