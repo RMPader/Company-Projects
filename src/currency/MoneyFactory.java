@@ -27,8 +27,7 @@ public class MoneyFactory {
 		case PHP:
 			return new PHPeso(wholeNumber, decimalNumber);
 		default:
-			StringBuilder errorMessage = createMoneyTypeExceptionMessage(inputMoney);
-			throw new InvalidMoneyTypeException(errorMessage.toString());
+			throw new InvalidMoneyTypeException(currency.toString()+" is not yet implemented.");
 		}
 	}
 	
@@ -58,8 +57,14 @@ public class MoneyFactory {
 		return !valueString.contains(".");
 	}
 
-	private static Currency currencyTypeFromString(String currencyPart) throws InvalidMoneyValueException {
-		return Currency.valueOf(currencyPart);
+	private static Currency currencyTypeFromString(String currencyPart) throws InvalidMoneyTypeException {
+		try{
+			return Currency.valueOf(currencyPart);
+		} catch(IllegalArgumentException e){
+			StringBuilder errorMessage = createMoneyTypeExceptionMessage(currencyPart);
+			throw new InvalidMoneyTypeException(errorMessage.toString());
+		}
+		
 	}
 
 	private static StringBuilder createMoneyTypeExceptionMessage(String suspectString) {

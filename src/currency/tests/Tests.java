@@ -13,6 +13,7 @@ import currency.Money;
 import currency.MoneyFactory;
 import currency.PHPeso;
 import currency.USDollar;
+import currency.exceptions.InvalidMoneyTypeException;
 
 public class Tests {
 
@@ -30,6 +31,15 @@ public class Tests {
 		assertEquals("USD 0.12",noDecimal.toString());
 	}
 
+	@Test
+	public void createNonExistentType(){
+		try{
+			MoneyFactory.createMoney("SGD 1.00");
+			fail("Must throw an invalid money exception because SGD is not included in available currencies");
+		} catch(InvalidMoneyTypeException e){
+		}
+	}
+	
 	@Test
 	public void valueOfPhp() {
 		Money php = MoneyFactory.createMoney("PHP 333.00");
