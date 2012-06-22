@@ -3,9 +3,9 @@ package rey.clive.model;
 public enum Currency
 {
 	EUR("EUR"), USD("USD"), PHP("PHP");
-	private Currency(String toStringValue)
+	private Currency(String stringValue)
 	{
-		this.stringValue = toStringValue;
+		this.stringValue = stringValue;
 	}
 
 	@Override

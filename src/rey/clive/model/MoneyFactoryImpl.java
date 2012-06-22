@@ -4,7 +4,7 @@ import rey.clive.exceptions.InvalidMoneyFormatException;
 
 public class MoneyFactoryImpl implements MoneyFactory
 {
-	private static final int	MONEY_CURRENCY_INDEX	               = 0;
+	private static final int	MONEY_CURRENCY_INDEX	            = 0;
 	private static final int	MONEY_VALUE_INDEX	               = 1;
 	private static final int	MONEY_VALUE_WHOLE_NUMBER_INDEX	= 0;
 	private static final int	MONEY_VALUE_DECIMAL_NUMBER_INDEX	= 1;
