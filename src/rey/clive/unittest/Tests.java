@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -14,10 +13,10 @@ import rey.clive.model.MoneyFactoryImpl;
 
 public class Tests
 {
-	private Money	      php, eur, usd;
+	private static Money	php, eur, usd;
 
 	@BeforeClass
-	public void setUp()
+	public static void setUp()
 	{
 		MoneyFactory moneyFactory = new MoneyFactoryImpl();
 		php = moneyFactory.createMoney("PHP 333.00");
