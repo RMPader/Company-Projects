@@ -33,16 +33,29 @@ public class MoneyFactory {
 	}
 	
 	private static int extractWholeNumber(String valuePart) {
+		if(startsWithDecimalPoint(valuePart)){
+			return 0;
+		}
 		String splitValue[] = valuePart.split("\\.");
 		int wholeNumber = Integer.parseInt(splitValue[MONEY_VALUE_WHOLE_NUMBER_INDEX]);
 		return wholeNumber;
-
 	}
-
+	
+	private static boolean startsWithDecimalPoint(String valueString){
+		return valueString.charAt(0) == '.';
+	}
+	
 	private static int extractDecimalNumber(String valuePart) {
+		if(isWholeNumberOnly(valuePart)){
+			return 0;
+		}
 		String splitValue[] = valuePart.split("\\.");
 		int decimalNumber = Integer.parseInt(splitValue[MONEY_VALUE_DECIMAL_NUMBER_INDEX]);
 		return decimalNumber;
+	}
+	
+	private static boolean isWholeNumberOnly(String valueString){
+		return !valueString.contains(".");
 	}
 
 	private static Currency currencyTypeFromString(String currencyPart) throws InvalidMoneyValueException {
