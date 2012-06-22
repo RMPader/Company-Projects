@@ -1,4 +1,4 @@
-package rey.clive.model;
+package currency;
 
 public enum Currency
 {

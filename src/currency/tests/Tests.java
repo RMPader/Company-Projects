@@ -1,4 +1,4 @@
-package rey.clive.unittest;
+package currency.tests;
 
 import static org.junit.Assert.assertEquals;
 
@@ -7,9 +7,9 @@ import java.math.BigDecimal;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import rey.clive.model.Money;
-import rey.clive.model.MoneyFactory;
-import rey.clive.model.MoneyFactoryImpl;
+import currency.Money;
+import currency.MoneyFactory;
+
 
 public class Tests
 {
@@ -18,12 +18,14 @@ public class Tests
 	@BeforeClass
 	public static void setUp()
 	{
-		MoneyFactory moneyFactory = new MoneyFactoryImpl();
-		php = moneyFactory.createMoney("PHP 333.00");
-		eur = moneyFactory.createMoney("EUR 1.01");
-		usd = moneyFactory.createMoney("USD 1.20");
+		php = MoneyFactory.createMoney("PHP 333.00");
+		eur = MoneyFactory.createMoney("EUR 1.01");
+		usd = MoneyFactory.createMoney("USD 1.20");
 	}
-
+	/*@Test
+	public void noDecimalCreation(){
+		Money noDecimal = MoneyFactory.createMoney("USD 1");
+	}*/
 	@Test
 	public void valueOfPhp()
 	{
