@@ -14,6 +14,7 @@ import currency.MoneyFactory;
 import currency.PHPeso;
 import currency.USDollar;
 import currency.exceptions.InvalidMoneyTypeException;
+import currency.exceptions.InvalidMoneyValueException;
 
 public class Tests {
 
@@ -35,8 +36,17 @@ public class Tests {
 	public void createNonExistentType(){
 		try{
 			MoneyFactory.createMoney("SGD 1.00");
-			fail("Must throw an invalid money exception because SGD is not included in available currencies");
+			fail("Must throw an invalid money type exception because SGD is not included in available currencies");
 		} catch(InvalidMoneyTypeException e){
+		}
+	}
+	
+	@Test
+	public void decimalPrecisionTest(){
+		try{
+			MoneyFactory.createMoney("PHP 1.001");
+			fail("Must throw an invalid money value exception because decimal is more than 2 precision");
+		} catch(InvalidMoneyValueException e){
 		}
 	}
 	

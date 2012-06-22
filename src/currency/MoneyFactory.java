@@ -10,7 +10,7 @@ public class MoneyFactory {
 	private static final int MONEY_VALUE_WHOLE_NUMBER_INDEX = 0;
 	private static final int MONEY_VALUE_DECIMAL_NUMBER_INDEX = 1;
 
-	public static Money createMoney(String inputMoney) throws InvalidMoneyTypeException {
+	public static Money createMoney(String inputMoney) throws InvalidMoneyTypeException, InvalidMoneyValueException {
 		String[] moneyExpression = inputMoney.split(" ");
 		String valueFromInput = moneyExpression[MONEY_VALUE_INDEX];
 		String currencyFromInput = moneyExpression[MONEY_CURRENCY_INDEX];
@@ -48,13 +48,21 @@ public class MoneyFactory {
 		if(isWholeNumberOnly(valuePart)){
 			return 0;
 		}
-		String splitValue[] = valuePart.split("\\.");
-		int decimalNumber = Integer.parseInt(splitValue[MONEY_VALUE_DECIMAL_NUMBER_INDEX]);
+		String[] splitValue = valuePart.split("\\.");
+		String decimalPortion = splitValue[MONEY_VALUE_DECIMAL_NUMBER_INDEX];
+		if(decimalPrecisionIsMoreThanTwo(decimalPortion)){
+			throw new InvalidMoneyValueException(valuePart+" has higher precision. Expected is 2 (e.g 1.00, 30.01)");
+		}
+		int decimalNumber = Integer.parseInt(decimalPortion);
 		return decimalNumber;
 	}
 	
 	private static boolean isWholeNumberOnly(String valueString){
 		return !valueString.contains(".");
+	}
+	
+	private static boolean decimalPrecisionIsMoreThanTwo(String decimalNumber){
+		return decimalNumber.length() > 2;
 	}
 
 	private static Currency currencyTypeFromString(String currencyPart) throws InvalidMoneyTypeException {
