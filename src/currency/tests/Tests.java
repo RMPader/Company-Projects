@@ -11,7 +11,6 @@ import org.junit.Test;
 import currency.Euro;
 import currency.Money;
 import currency.MoneyFactory;
-import currency.PHPeso;
 import currency.USDollar;
 import currency.exceptions.IncompatibleCurrency;
 import currency.exceptions.InvalidMoneyTypeException;
