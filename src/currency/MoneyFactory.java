@@ -1,7 +1,6 @@
 package currency;
 
-import currency.exceptions.InvalidMoneyTypeException;
-import currency.exceptions.InvalidMoneyValueException;
+import currency.exceptions.*;
 
 public class MoneyFactory {
 	private static final int MONEY_CURRENCY_INDEX = 0;
@@ -9,9 +8,13 @@ public class MoneyFactory {
 	
 	private static final int MONEY_VALUE_WHOLE_NUMBER_INDEX = 0;
 	private static final int MONEY_VALUE_DECIMAL_NUMBER_INDEX = 1;
-
-	public static Money createMoney(String inputMoney) throws InvalidMoneyTypeException, InvalidMoneyValueException {
+	
+	private static final int DECIMAL_PRECISION = 2;
+	public static Money createMoney(String inputMoney)
+			throws InvalidMoneyTypeException, InvalidMoneyValueException {
+		
 		String[] moneyExpression = inputMoney.split(" ");
+		
 		String valueFromInput = moneyExpression[MONEY_VALUE_INDEX];
 		String currencyFromInput = moneyExpression[MONEY_CURRENCY_INDEX];
 		
@@ -48,12 +51,16 @@ public class MoneyFactory {
 		if(isWholeNumberOnly(valuePart)){
 			return 0;
 		}
-		String[] splitValue = valuePart.split("\\.");
-		String decimalPortion = splitValue[MONEY_VALUE_DECIMAL_NUMBER_INDEX];
-		if(decimalPrecisionIsMoreThanTwo(decimalPortion)){
-			throw new InvalidMoneyValueException(valuePart+" has higher precision. Expected is 2 (e.g 1.00, 30.01)");
+		
+		String decimalFromInput = extractDecimalFromInput(valuePart);
+		
+		if(decimalPrecisionIsMoreThanTwo(decimalFromInput)){
+			throw new InvalidMoneyValueException(
+					valuePart + " has higher precision. Expected is 2 (e.g 1.00, 30.01)");
 		}
-		int decimalNumber = Integer.parseInt(decimalPortion);
+		
+		int decimalNumber = Integer.parseInt(decimalFromInput);
+		
 		return decimalNumber;
 	}
 	
@@ -61,11 +68,18 @@ public class MoneyFactory {
 		return !valueString.contains(".");
 	}
 	
+	private static String extractDecimalFromInput(String value){
+		String[] splitValue = value.split("\\.");
+		String decimalFromInput = splitValue[MONEY_VALUE_DECIMAL_NUMBER_INDEX];
+		return decimalFromInput;
+	}
+	
 	private static boolean decimalPrecisionIsMoreThanTwo(String decimalNumber){
-		return decimalNumber.length() > 2;
+		return decimalNumber.length() > DECIMAL_PRECISION;
 	}
 
-	private static Currency currencyTypeFromString(String currencyPart) throws InvalidMoneyTypeException {
+	private static Currency currencyTypeFromString(String currencyPart) 
+			throws InvalidMoneyTypeException {
 		try{
 			return Currency.valueOf(currencyPart);
 		} catch(IllegalArgumentException e){
