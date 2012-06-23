@@ -26,14 +26,6 @@ public class Money {
 	BigDecimal bigDecimal = new BigDecimal(value);
 	decimalFormat = new DecimalFormat("0.00");
 	this.stringValue = decimalFormat.format(bigDecimal);
-	// String format = "%.2f";
-	// if (isNegativeDecimal()) {
-	// this.stringValue = "-" + String.format(format, bigDecimal);
-	// } else {
-	// this.stringValue = String.format(format, this.wholeNumber,
-	// this.decimalNumber);
-
-	// }
     }
 
     private String generateWholeNumberPart() {
@@ -59,6 +51,18 @@ public class Money {
     public BigDecimal getValue() {
 	return new BigDecimal(stringValue);
     }
+
+    public Money multiply(String multiplicand) {
+	BigDecimal result = getValue().multiply(new BigDecimal(multiplicand));
+	String moneyExpression = generateMoneyResultExpression(result);
+	return MoneyFactory.createMoney(moneyExpression);
+    }
+    
+    public Money divide(String multiplicand) {
+   	BigDecimal result = getValue().divide(new BigDecimal(multiplicand));
+   	String moneyExpression = generateMoneyResultExpression(result);
+   	return MoneyFactory.createMoney(moneyExpression);
+       }
 
     public Money add(Money augend) throws IncompatibleCurrencyException {
 	checkCurrency(augend);

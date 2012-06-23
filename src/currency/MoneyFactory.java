@@ -11,7 +11,7 @@ public class MoneyFactory {
     private static final int MONEY_VALUE_DECIMAL_NUMBER_INDEX = 1;
 
     public static Money createMoney(String inputMoney)
-	    throws InvalidMoneyTypeException, InvalidMoneyValueException {
+	    throws InvalidMoneyTypeException, InvalidMoneyValueException{
 	String[] moneyExpression = inputMoney.split(" ");
 	String valueFromInput = moneyExpression[MONEY_VALUE_INDEX];
 	String currencyFromInput = moneyExpression[MONEY_CURRENCY_INDEX];
@@ -20,7 +20,7 @@ public class MoneyFactory {
 	int decimalNumber = extractDecimalNumber(valueFromInput);
 	Currency currency = currencyTypeFromString(currencyFromInput);
 	LeadingDecimalZeroes leadingDecimalZeroes = LeadingDecimalZeroes.ZERO;
-	if (inputMoney.contains(".0")) {
+	if (inputMoney.matches("\\w{3}\\s\\-?\\d{0,2}\\.0[1-9]")) {
 	    leadingDecimalZeroes = LeadingDecimalZeroes.ONE;
 	} else {
 	    if (decimalNumber < 10 && decimalNumber > -10) {
