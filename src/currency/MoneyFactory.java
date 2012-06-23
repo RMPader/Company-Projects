@@ -53,6 +53,9 @@ public class MoneyFactory {
 	    return 0;
 	}
 	String splitValue[] = valuePart.split("\\.");
+	if(splitValue.length > 2){
+		throw new InvalidMoneyValueException(valuePart + ": input has many decimal points");
+	}
 	int wholeNumber = Integer
 		.parseInt(splitValue[MONEY_VALUE_WHOLE_NUMBER_INDEX]);
 	return wholeNumber;
