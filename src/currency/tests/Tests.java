@@ -78,6 +78,15 @@ public class Tests {
 	}
 	
 	@Test
+	public void multipleDots(){
+		try{
+			MoneyFactory.createMoney("PHP 1.10.12");
+			fail("Must throw an invalid money value exception because of multiple decimal points");
+		} catch(InvalidMoneyValueException e){
+		}
+	}
+	
+	@Test
 	public void characterInWholeNumberNoDecimal(){
 		try{
 			MoneyFactory.createMoney("PHP 1a");
