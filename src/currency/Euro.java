@@ -1,8 +1,8 @@
 package currency;
 
 public class Euro extends Money {
-	public Euro(int wholeNumber, int decimalNumber) {
-		super(wholeNumber, decimalNumber);
+	public Euro(int wholeNumber, int decimalNumber,Currency currency) {
+	super(wholeNumber, decimalNumber, currency);
 	}
 
 	@Override

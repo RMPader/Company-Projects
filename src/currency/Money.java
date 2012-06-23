@@ -1,44 +1,98 @@
 package currency;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 
-import currency.exceptions.IncompatibleCurrency;
+import currency.exceptions.IncompatibleCurrencyException;
 
 public class Money {
-    
-    //TODO subtraction, multiplication, division
+
+    // TODO subtraction, multiplication, division
+    private final Currency currency;
     private final int decimalNumber;
     private final int wholeNumber;
     private final String stringValue;
 
-    protected Money(int wholeNumber, int decimalNumber) {
+    protected Money(int wholeNumber, int decimalNumber, Currency currency) {
 	this.wholeNumber = wholeNumber;
 	this.decimalNumber = decimalNumber;
-	this.stringValue = String.format("%d.%02d", this.wholeNumber,
-		this.decimalNumber);
+	this.currency = currency;
+	String value;
+	if (wholeNumber < 0 || decimalNumber < 0) {
+	    value = "-" + Math.abs(wholeNumber) + "." + Math.abs(decimalNumber);
+	} else {
+	    value = Math.abs(wholeNumber) + "." + Math.abs(decimalNumber);
+	}
+
+	BigDecimal bigDecimal = new BigDecimal(value);
+	DecimalFormat decimalFormat = new DecimalFormat("0.00");
+	this.stringValue = decimalFormat.format(bigDecimal);
+	// String format = "%.2f";
+	// if (isNegativeDecimal()) {
+	// this.stringValue = "-" + String.format(format, bigDecimal);
+	// } else {
+	// this.stringValue = String.format(format, this.wholeNumber,
+	// this.decimalNumber);
+
+	// }
+    }
+
+    private boolean isNegativeDecimal() {
+	return decimalNumber < 0;
     }
 
     public BigDecimal getValue() {
 	return new BigDecimal(stringValue);
     }
 
-    public Money add(Money addend) throws IncompatibleCurrency {
+    public Money add(Money addend) throws IncompatibleCurrencyException {
+	checkCurrency(addend);
 	int wholeNumber = this.wholeNumber + addend.wholeNumber;
 	int decimalNumber = this.decimalNumber + addend.decimalNumber;
-	if (this.getClass() != addend.getClass()) {
-	    StringBuffer errorMessage = new StringBuffer("cannot perform addition on :");
-	    errorMessage.append(toString());
-	    errorMessage.append(" and ");
-	    errorMessage.append(addend.toString());
-	    throw new IncompatibleCurrency(errorMessage.toString());
+	String result = generateMoneyResultExpression(wholeNumber,
+		decimalNumber);
+	return MoneyFactory.createMoney(result);
+    }
+
+    private void checkCurrency(Money money)
+	    throws IncompatibleCurrencyException {
+	if (this.currency != money.currency) {
+	    String errorMessage = createIncompatibleCurrencyExceptionMessage(money);
+	    throw new IncompatibleCurrencyException(errorMessage);
 	}
+    }
+
+    private String createIncompatibleCurrencyExceptionMessage(Money operand) {
+	StringBuffer errorMessage = new StringBuffer(
+		"cannot perform operation on :");
+	errorMessage.append(toString());
+	errorMessage.append(" and ");
+	errorMessage.append(operand.toString());
+	return errorMessage.toString();
+    }
+
+    private String generateMoneyResultExpression(int wholeNumber,
+	    int decimalNumber) {
 	StringBuffer rawResult = new StringBuffer();
-	rawResult.append("USD");
+	rawResult.append(currency);
 	rawResult.append(" ");
 	rawResult.append(wholeNumber);
 	rawResult.append(".");
 	rawResult.append(decimalNumber);
-	String result = rawResult.toString();
+	return rawResult.toString();
+    }
+
+    public Money subtract(Money subtrahend)
+	    throws IncompatibleCurrencyException {
+	checkCurrency(subtrahend);
+	int wholeNumber = this.wholeNumber - subtrahend.wholeNumber;
+	int decimalNumber = this.decimalNumber - subtrahend.decimalNumber;
+	if (decimalNumber < 0) {
+	    wholeNumber--;
+	    decimalNumber += 10;
+	}
+	String result = generateMoneyResultExpression(wholeNumber,
+		decimalNumber);
 	return MoneyFactory.createMoney(result);
     }
 

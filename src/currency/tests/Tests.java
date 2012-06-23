@@ -12,12 +12,11 @@ import currency.Euro;
 import currency.Money;
 import currency.MoneyFactory;
 import currency.USDollar;
-import currency.exceptions.IncompatibleCurrency;
+import currency.exceptions.IncompatibleCurrencyException;
 import currency.exceptions.InvalidMoneyTypeException;
 import currency.exceptions.InvalidMoneyValueException;
 
 public class Tests {
-
 
     @Test
     public void decimalPrecisionTest() {
@@ -29,27 +28,105 @@ public class Tests {
     }
 
     @Test
-    public void sameCurrencyAddition() throws IncompatibleCurrency {
-	Money augend = MoneyFactory.createMoney("USD 1.0");
-	Money addend = MoneyFactory.createMoney("USD 2.0");
+    public void sameCurrencyAddition() throws IncompatibleCurrencyException {
+	Money augend = MoneyFactory.createMoney("EUR -1.0");
+	Money addend = MoneyFactory.createMoney("EUR -2.0");
 	Money result = augend.add(addend);
-	Money expected = MoneyFactory.createMoney("USD 3.0");
+	Money expected = MoneyFactory.createMoney("EUR -3.0");
 	assertEquals(expected, result);
+	assertEquals(expected.toString(), result.toString());
+	assertEquals(expected.getValue(),result.getValue());
+
+	augend = MoneyFactory.createMoney("USD 0.0");
+	addend = MoneyFactory.createMoney("USD -1.0");
+	result = augend.add(addend);
+	expected = MoneyFactory.createMoney("USD -1.0");
+	assertEquals(expected, result);
+	assertEquals(expected.toString(), result.toString());
+	assertEquals(expected.getValue(),result.getValue());
+	
+	augend = MoneyFactory.createMoney("PHP 0.5");
+	addend = MoneyFactory.createMoney("PHP 1.0");
+	result = augend.add(addend);
+	expected = MoneyFactory.createMoney("PHP 1.5");
+	assertEquals(expected, result);
+	assertEquals(expected.toString(), result.toString());
+	assertEquals(expected.getValue(),result.getValue());
+	
+	augend = MoneyFactory.createMoney("USD -.5");
+	addend = MoneyFactory.createMoney("USD -.0");
+	result = augend.add(addend);
+	expected = MoneyFactory.createMoney("USD -.5");
+	assertEquals(expected, result);
+	assertEquals(expected.toString(), result.toString());
+	assertEquals(expected.getValue(),result.getValue());
+	
+	augend = MoneyFactory.createMoney("PHP 1");
+	addend = MoneyFactory.createMoney("PHP .5");
+	result = augend.add(addend);
+	expected = MoneyFactory.createMoney("PHP 1.5");
+	assertEquals(expected, result);
+	assertEquals(expected.toString(), result.toString());
+	assertEquals(expected.getValue(),result.getValue());
+	
+	augend = MoneyFactory.createMoney("EUR 1");
+	addend = MoneyFactory.createMoney("EUR .5");
+	result = augend.add(addend);
+	expected = MoneyFactory.createMoney("EUR 1.5");
+	assertEquals(expected, result);
+	assertEquals(expected.toString(), result.toString());
+	assertEquals(expected.getValue(),result.getValue());
+    }
+
+    @Test
+    public void sameCurrencySubtraction() throws IncompatibleCurrencyException {
+	Money augend = MoneyFactory.createMoney("EUR 1.0");
+	Money addend = MoneyFactory.createMoney("EUR 2.0");
+	Money result = augend.subtract(addend);
+	Money expected = MoneyFactory.createMoney("EUR -1.0");
+	assertEquals(expected, result);
+	assertEquals(expected.toString(), result.toString());
+	assertEquals(expected.getValue(),result.getValue());
+
 	augend = MoneyFactory.createMoney("USD 0.0");
 	addend = MoneyFactory.createMoney("USD 1.0");
-	result = augend.add(addend);
-	expected = MoneyFactory.createMoney("USD 1.0");
+	result = augend.subtract(addend);
+	expected = MoneyFactory.createMoney("USD -1.0");
 	assertEquals(expected, result);
-	augend = MoneyFactory.createMoney("USD .5");
-	addend = MoneyFactory.createMoney("USD 1.0");
-	result = augend.add(addend);
-	expected = MoneyFactory.createMoney("USD 1.5");
+	assertEquals(expected.toString(), result.toString());
+	assertEquals(expected.getValue(),result.getValue());
+
+	augend = MoneyFactory.createMoney("PHP .5");
+	addend = MoneyFactory.createMoney("PHP 1.0");
+	result = augend.subtract(addend);
+	expected = MoneyFactory.createMoney("PHP -1.5");
 	assertEquals(expected, result);
+	assertEquals(expected.toString(), result.toString());
+	assertEquals(expected.getValue(),result.getValue());
+
 	augend = MoneyFactory.createMoney("USD .5");
 	addend = MoneyFactory.createMoney("USD .0");
-	result = augend.add(addend);
+	result = augend.subtract(addend);
 	expected = MoneyFactory.createMoney("USD .5");
 	assertEquals(expected, result);
+	assertEquals(expected.toString(), result.toString());
+	assertEquals(expected.getValue(),result.getValue());
+
+	augend = MoneyFactory.createMoney("PHP 1");
+	addend = MoneyFactory.createMoney("PHP .5");
+	result = augend.subtract(addend);
+	expected = MoneyFactory.createMoney("PHP .5");
+	assertEquals(expected, result);
+	assertEquals(expected.toString(), result.toString());
+	assertEquals(expected.getValue(),result.getValue());
+
+	augend = MoneyFactory.createMoney("EUR -1");
+	addend = MoneyFactory.createMoney("EUR -.5");
+	result = augend.subtract(addend);
+	expected = MoneyFactory.createMoney("EUR -0.50");
+	assertEquals(expected, result);
+	assertEquals(expected.toString(), result.toString());
+	assertEquals(expected.getValue(),result.getValue());
     }
 
     @Test
@@ -58,14 +135,29 @@ public class Tests {
 	Money addend = MoneyFactory.createMoney("EUR 2.0");
 	try {
 	    augend.add(addend);
-	} catch (IncompatibleCurrency e) {
-	    e.printStackTrace();
+	} catch (IncompatibleCurrencyException e) {
+	}
+	augend = MoneyFactory.createMoney("USD 1.0");
+	addend = MoneyFactory.createMoney("PHP 2.0");
+	try {
+	    augend.add(addend);
+	} catch (IncompatibleCurrencyException e) {
+	}
+	augend = MoneyFactory.createMoney("PHP 1.0");
+	addend = MoneyFactory.createMoney("EUR 2.0");
+	try {
+	    augend.add(addend);
+	} catch (IncompatibleCurrencyException e) {
 	}
     }
 
     @Test
     public void noDecimalCreation() {
-	Money noDecimal = MoneyFactory.createMoney("USD 1");
+	Money noDecimal = MoneyFactory.createMoney("USD -1");
+	assertEquals(new BigDecimal("-1.00"), noDecimal.getValue());
+	assertEquals("USD -1.00", noDecimal.toString());
+
+	noDecimal = MoneyFactory.createMoney("USD 1");
 	assertEquals(new BigDecimal("1.00"), noDecimal.getValue());
 	assertEquals("USD 1.00", noDecimal.toString());
     }
@@ -75,6 +167,15 @@ public class Tests {
 	Money noDecimal = MoneyFactory.createMoney("USD .12");
 	assertEquals(new BigDecimal(".12"), noDecimal.getValue());
 	assertEquals("USD 0.12", noDecimal.toString());
+	
+	noDecimal = MoneyFactory.createMoney("USD .1");
+	assertEquals(new BigDecimal(".1"), noDecimal.getValue());
+	assertEquals("USD 0.10", noDecimal.toString());
+
+	noDecimal = MoneyFactory.createMoney("USD -.12");
+	System.out.println(noDecimal.toString());
+	assertEquals(new BigDecimal("-.12"), noDecimal.getValue());
+	assertEquals("USD -0.12", noDecimal.toString());
     }
 
     @Test
@@ -82,6 +183,11 @@ public class Tests {
 	try {
 	    MoneyFactory.createMoney("SGD 1.00");
 	    fail("Must throw an invalid money exception because SGD is not included in available currencies");
+	} catch (InvalidMoneyTypeException e) {
+	}
+	try {
+	    MoneyFactory.createMoney("HKJASFHKJA 1.00");
+	    fail("Must throw an invalid money exception because HKJASFHKJA is not included in available currencies");
 	} catch (InvalidMoneyTypeException e) {
 	}
     }
