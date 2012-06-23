@@ -16,30 +16,35 @@ public class MoneyFactory {
 	String valueFromInput = moneyExpression[MONEY_VALUE_INDEX];
 	String currencyFromInput = moneyExpression[MONEY_CURRENCY_INDEX];
 
-	int wholeNumber = extractWholeNumber(valueFromInput);
-	int decimalNumber = extractDecimalNumber(valueFromInput);
-	Currency currency = currencyTypeFromString(currencyFromInput);
-	LeadingDecimalZeroes leadingDecimalZeroes = LeadingDecimalZeroes.ZERO;
-	if (inputMoney.matches("\\w{3}\\s\\-?\\d{0,2}\\.0[1-9]")) {
-	    leadingDecimalZeroes = LeadingDecimalZeroes.ONE;
-	} else {
-	    if (decimalNumber < 10 && decimalNumber > -10) {
-		decimalNumber *= 10;
+	try {
+	    int wholeNumber = extractWholeNumber(valueFromInput);
+	    int decimalNumber = extractDecimalNumber(valueFromInput);
+	    Currency currency = currencyTypeFromString(currencyFromInput);
+	    LeadingDecimalZeroes leadingDecimalZeroes = LeadingDecimalZeroes.ZERO;
+	    if (inputMoney.matches("\\w{3}\\s\\-?\\d{0,2}\\.0[1-9]")) {
+		leadingDecimalZeroes = LeadingDecimalZeroes.ONE;
+	    } else {
+		if (decimalNumber < 10 && decimalNumber > -10) {
+		    decimalNumber *= 10;
+		}
 	    }
-	}
-	switch (currency) {
-	case EUR:
-	    return new Euro(wholeNumber, decimalNumber, currency,
-		    leadingDecimalZeroes);
-	case USD:
-	    return new USDollar(wholeNumber, decimalNumber, currency,
-		    leadingDecimalZeroes);
-	case PHP:
-	    return new PHPeso(wholeNumber, decimalNumber, currency,
-		    leadingDecimalZeroes);
-	default:
-	    throw new InvalidMoneyTypeException(currency.toString()
-		    + " is not yet implemented.");
+	    switch (currency) {
+	    case EUR:
+		return new Euro(wholeNumber, decimalNumber, currency,
+			leadingDecimalZeroes);
+	    case USD:
+		return new USDollar(wholeNumber, decimalNumber, currency,
+			leadingDecimalZeroes);
+	    case PHP:
+		return new PHPeso(wholeNumber, decimalNumber, currency,
+			leadingDecimalZeroes);
+	    default:
+		throw new InvalidMoneyTypeException(currency.toString()
+			+ " is not yet implemented.");
+	    }
+	} catch (NumberFormatException e) {
+	    throw new InvalidMoneyValueException(valueFromInput
+		    + " contains a non-numeric character in it's value.");
 	}
     }
 
@@ -70,6 +75,7 @@ public class MoneyFactory {
 	    throw new InvalidMoneyValueException(valuePart
 		    + " has higher precision. Expected is 2 (e.g 1.00, 30.01)");
 	}
+
 	String[] splitValue = valuePart.split("\\.");
 
 	if (isDecimalNegative(splitValue[0])) {
@@ -78,6 +84,10 @@ public class MoneyFactory {
 	int decimalNumber = Integer.parseInt(decimalFromInput);
 
 	return decimalNumber;
+    }
+
+    private static boolean isWholeNumberOnly(String valueString) {
+	return !valueString.contains(".");
     }
 
     private static String extractDecimalFromInput(String value) {
@@ -97,10 +107,6 @@ public class MoneyFactory {
 	    return false;
     }
 
-    private static boolean isWholeNumberOnly(String valueString) {
-	return !valueString.contains(".");
-    }
-
     private static Currency currencyTypeFromString(String currencyPart)
 	    throws InvalidMoneyTypeException {
 	try {
@@ -109,7 +115,6 @@ public class MoneyFactory {
 	    StringBuilder errorMessage = createMoneyTypeExceptionMessage(currencyPart);
 	    throw new InvalidMoneyTypeException(errorMessage.toString());
 	}
-
     }
 
     private static StringBuilder createMoneyTypeExceptionMessage(
