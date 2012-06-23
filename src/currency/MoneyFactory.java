@@ -48,19 +48,6 @@ public class MoneyFactory {
 	}
     }
 
-    private static int extractWholeNumber(String valuePart) {
-	if (startsWithDecimalPointorNegativeSign(valuePart)) {
-	    return 0;
-	}
-	String splitValue[] = valuePart.split("\\.");
-	if(splitValue.length > 2){
-		throw new InvalidMoneyValueException(valuePart + ": input has many decimal points");
-	}
-	int wholeNumber = Integer
-		.parseInt(splitValue[MONEY_VALUE_WHOLE_NUMBER_INDEX]);
-	return wholeNumber;
-    }
-
     private static boolean startsWithDecimalPointorNegativeSign(
 	    String valueString) {
 	return valueString.charAt(0) == '.'
@@ -73,20 +60,41 @@ public class MoneyFactory {
 	}
 
 	String decimalFromInput = extractDecimalFromInput(valuePart);
-
 	if (decimalPrecisionIsMoreThanTwo(decimalFromInput)) {
 	    throw new InvalidMoneyValueException(valuePart
 		    + " has higher precision. Expected is 2 (e.g 1.00, 30.01)");
 	}
-
 	String[] splitValue = valuePart.split("\\.");
-
 	if (isDecimalNegative(splitValue[0])) {
 	    decimalFromInput = "-" + decimalFromInput;
 	}
 	int decimalNumber = Integer.parseInt(decimalFromInput);
-
 	return decimalNumber;
+    }
+
+    private static int extractWholeNumber(String valuePart) {
+	if (startsWithDecimalPointorNegativeSign(valuePart)) {
+	    return 0;
+	}
+	String splitValue[] = valuePart.split("\\.");
+	if (splitValue.length > 2) {
+	    throw new InvalidMoneyValueException(valuePart
+		    + ": input has many decimal points");
+	}
+	int wholeNumber = Integer
+		.parseInt(splitValue[MONEY_VALUE_WHOLE_NUMBER_INDEX]);
+	return wholeNumber;
+    }
+
+    private static Currency currencyTypeFromString(String currencyPart)
+	    throws InvalidMoneyTypeException {
+	try {
+	    return Currency.valueOf(currencyPart);
+	} catch (IllegalArgumentException e) {
+	    StringBuilder errorMessage = createMoneyTypeExceptionMessage(currencyPart);
+	    throw new InvalidMoneyTypeException(errorMessage.toString());
+	}
+
     }
 
     private static boolean isWholeNumberOnly(String valueString) {
@@ -108,16 +116,6 @@ public class MoneyFactory {
 	    return true;
 	else
 	    return false;
-    }
-
-    private static Currency currencyTypeFromString(String currencyPart)
-	    throws InvalidMoneyTypeException {
-	try {
-	    return Currency.valueOf(currencyPart);
-	} catch (IllegalArgumentException e) {
-	    StringBuilder errorMessage = createMoneyTypeExceptionMessage(currencyPart);
-	    throw new InvalidMoneyTypeException(errorMessage.toString());
-	}
     }
 
     private static StringBuilder createMoneyTypeExceptionMessage(
