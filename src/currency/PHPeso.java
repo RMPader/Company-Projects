@@ -1,8 +1,8 @@
 package currency;
 
 public class PHPeso extends Money {
-    public PHPeso(int wholeNumber, int decimalNumber, Currency currency) {
-	super(wholeNumber, decimalNumber, currency);
+    public PHPeso(int wholeNumber, int decimalNumber, Currency currency,LeadingDecimalZeroes leadingDecimalZeroes) {
+	super(wholeNumber, decimalNumber, currency,leadingDecimalZeroes);
     }
 
     @Override

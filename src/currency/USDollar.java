@@ -1,8 +1,9 @@
 package currency;
 
 public class USDollar extends Money {
-    public USDollar(int wholeNumber, int decimalNumber, Currency currency) {
-	super(wholeNumber, decimalNumber, currency);
+    public USDollar(int wholeNumber, int decimalNumber, Currency currency,
+	    LeadingDecimalZeroes leadingDecimalZeroes) {
+	super(wholeNumber, decimalNumber, currency, leadingDecimalZeroes);
     }
 
     @Override

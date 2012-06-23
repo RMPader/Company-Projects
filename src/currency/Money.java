@@ -7,25 +7,24 @@ import currency.exceptions.IncompatibleCurrencyException;
 
 public class Money {
 
-    // TODO subtraction, multiplication, division
     private final Currency currency;
     private final int decimalNumber;
     private final int wholeNumber;
     private final String stringValue;
+    private final LeadingDecimalZeroes leadingDecimalZeroes;
+    private final DecimalFormat decimalFormat;
 
-    protected Money(int wholeNumber, int decimalNumber, Currency currency) {
+    protected Money(int wholeNumber, int decimalNumber, Currency currency,
+	    LeadingDecimalZeroes leadingDecimalZeroes) {
 	this.wholeNumber = wholeNumber;
 	this.decimalNumber = decimalNumber;
 	this.currency = currency;
-	String value;
-	if (wholeNumber < 0 || decimalNumber < 0) {
-	    value = "-" + Math.abs(wholeNumber) + "." + Math.abs(decimalNumber);
-	} else {
-	    value = Math.abs(wholeNumber) + "." + Math.abs(decimalNumber);
-	}
-
+	this.leadingDecimalZeroes = leadingDecimalZeroes;
+	String wholeNumberPart = generateWholeNumberPart();
+	String decimalPart = generateDecimalPart();
+	String value = wholeNumberPart + decimalPart;
 	BigDecimal bigDecimal = new BigDecimal(value);
-	DecimalFormat decimalFormat = new DecimalFormat("0.00");
+	decimalFormat = new DecimalFormat("0.00");
 	this.stringValue = decimalFormat.format(bigDecimal);
 	// String format = "%.2f";
 	// if (isNegativeDecimal()) {
@@ -37,21 +36,35 @@ public class Money {
 	// }
     }
 
-    private boolean isNegativeDecimal() {
-	return decimalNumber < 0;
+    private String generateWholeNumberPart() {
+	if (isWholeNumberOrDecimalNegative()) {
+	    return "-" + Math.abs(wholeNumber);
+	} else
+	    return String.valueOf(wholeNumber);
+    }
+
+    private boolean isWholeNumberOrDecimalNegative() {
+	return wholeNumber < 0 || decimalNumber < 0;
+    }
+
+    private String generateDecimalPart() {
+	int decimalNumber = Math.abs(this.decimalNumber);
+	if (leadingDecimalZeroes == LeadingDecimalZeroes.ONE) {
+	    return ".0" + Math.abs(decimalNumber);
+	} else {
+	    return "." + String.valueOf(Math.abs(decimalNumber));
+	}
     }
 
     public BigDecimal getValue() {
 	return new BigDecimal(stringValue);
     }
 
-    public Money add(Money addend) throws IncompatibleCurrencyException {
-	checkCurrency(addend);
-	int wholeNumber = this.wholeNumber + addend.wholeNumber;
-	int decimalNumber = this.decimalNumber + addend.decimalNumber;
-	String result = generateMoneyResultExpression(wholeNumber,
-		decimalNumber);
-	return MoneyFactory.createMoney(result);
+    public Money add(Money augend) throws IncompatibleCurrencyException {
+	checkCurrency(augend);
+	BigDecimal result = getValue().add(augend.getValue());
+	String moneyExpression = generateMoneyResultExpression(result);
+	return MoneyFactory.createMoney(moneyExpression);
     }
 
     private void checkCurrency(Money money)
@@ -71,29 +84,21 @@ public class Money {
 	return errorMessage.toString();
     }
 
-    private String generateMoneyResultExpression(int wholeNumber,
-	    int decimalNumber) {
+    private String generateMoneyResultExpression(BigDecimal total) {
 	StringBuffer rawResult = new StringBuffer();
 	rawResult.append(currency);
 	rawResult.append(" ");
-	rawResult.append(wholeNumber);
-	rawResult.append(".");
-	rawResult.append(decimalNumber);
+	String format = decimalFormat.format(total);
+	rawResult.append(format);
 	return rawResult.toString();
     }
 
     public Money subtract(Money subtrahend)
 	    throws IncompatibleCurrencyException {
 	checkCurrency(subtrahend);
-	int wholeNumber = this.wholeNumber - subtrahend.wholeNumber;
-	int decimalNumber = this.decimalNumber - subtrahend.decimalNumber;
-	if (decimalNumber < 0) {
-	    wholeNumber--;
-	    decimalNumber += 10;
-	}
-	String result = generateMoneyResultExpression(wholeNumber,
-		decimalNumber);
-	return MoneyFactory.createMoney(result);
+	BigDecimal result = getValue().subtract(subtrahend.getValue());
+	String moneyExpression = generateMoneyResultExpression(result);
+	return MoneyFactory.createMoney(moneyExpression);
     }
 
     @Override
@@ -105,7 +110,13 @@ public class Money {
     public int hashCode() {
 	final int prime = 31;
 	int result = 1;
+	result = prime * result
+		+ ((currency == null) ? 0 : currency.hashCode());
 	result = prime * result + decimalNumber;
+	result = prime
+		* result
+		+ ((leadingDecimalZeroes == null) ? 0 : leadingDecimalZeroes
+			.hashCode());
 	result = prime * result
 		+ ((stringValue == null) ? 0 : stringValue.hashCode());
 	result = prime * result + wholeNumber;
@@ -121,7 +132,11 @@ public class Money {
 	if (getClass() != obj.getClass())
 	    return false;
 	Money other = (Money) obj;
+	if (currency != other.currency)
+	    return false;
 	if (decimalNumber != other.decimalNumber)
+	    return false;
+	if (leadingDecimalZeroes != other.leadingDecimalZeroes)
 	    return false;
 	if (stringValue == null) {
 	    if (other.stringValue != null)

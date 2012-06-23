@@ -18,18 +18,25 @@ public class MoneyFactory {
 
 	int wholeNumber = extractWholeNumber(valueFromInput);
 	int decimalNumber = extractDecimalNumber(valueFromInput);
-	if (wholeNumber < 0) {
-	    decimalNumber *= -1;
-	}
 	Currency currency = currencyTypeFromString(currencyFromInput);
-
+	LeadingDecimalZeroes leadingDecimalZeroes = LeadingDecimalZeroes.ZERO;
+	if (inputMoney.contains(".0")) {
+	    leadingDecimalZeroes = LeadingDecimalZeroes.ONE;
+	} else {
+	    if (decimalNumber < 10 && decimalNumber > -10) {
+		decimalNumber *= 10;
+	    }
+	}
 	switch (currency) {
 	case EUR:
-	    return new Euro(wholeNumber, decimalNumber, currency);
+	    return new Euro(wholeNumber, decimalNumber, currency,
+		    leadingDecimalZeroes);
 	case USD:
-	    return new USDollar(wholeNumber, decimalNumber, currency);
+	    return new USDollar(wholeNumber, decimalNumber, currency,
+		    leadingDecimalZeroes);
 	case PHP:
-	    return new PHPeso(wholeNumber, decimalNumber, currency);
+	    return new PHPeso(wholeNumber, decimalNumber, currency,
+		    leadingDecimalZeroes);
 	default:
 	    throw new InvalidMoneyTypeException(currency.toString()
 		    + " is not yet implemented.");
@@ -62,15 +69,18 @@ public class MoneyFactory {
 	    throw new InvalidMoneyValueException(valuePart
 		    + " has higher precision. Expected is 2 (e.g 1.00, 30.01)");
 	}
-	int decimalNumber = Integer.parseInt(decimalPortion);
-	if (isNegativeDecimalNumber(splitValue)) {
-	    decimalNumber *= -1;
+	if (isDecimalNegative(splitValue[0])) {
+	    decimalPortion = "-" + decimalPortion;
 	}
+	int decimalNumber = Integer.parseInt(decimalPortion);
 	return decimalNumber;
     }
 
-    private static boolean isNegativeDecimalNumber(String[] splitValue) {
-	return splitValue[0].equals("-");
+    private static boolean isDecimalNegative(String valueString) {
+	if (valueString.contains("-"))
+	    return true;
+	else
+	    return false;
     }
 
     private static boolean isWholeNumberOnly(String valueString) {

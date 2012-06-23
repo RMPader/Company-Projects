@@ -49,9 +49,10 @@ public class Tests {
 	addend = MoneyFactory.createMoney("PHP 1.0");
 	result = augend.add(addend);
 	expected = MoneyFactory.createMoney("PHP 1.5");
+	assertEquals(expected.getValue(),result.getValue());
 	assertEquals(expected, result);
 	assertEquals(expected.toString(), result.toString());
-	assertEquals(expected.getValue(),result.getValue());
+	
 	
 	augend = MoneyFactory.createMoney("USD -.5");
 	addend = MoneyFactory.createMoney("USD -.0");
@@ -99,7 +100,7 @@ public class Tests {
 	augend = MoneyFactory.createMoney("PHP .5");
 	addend = MoneyFactory.createMoney("PHP 1.0");
 	result = augend.subtract(addend);
-	expected = MoneyFactory.createMoney("PHP -1.5");
+	expected = MoneyFactory.createMoney("PHP -.5");
 	assertEquals(expected, result);
 	assertEquals(expected.toString(), result.toString());
 	assertEquals(expected.getValue(),result.getValue());
@@ -169,12 +170,15 @@ public class Tests {
 	assertEquals("USD 0.12", noDecimal.toString());
 	
 	noDecimal = MoneyFactory.createMoney("USD .1");
-	assertEquals(new BigDecimal(".1"), noDecimal.getValue());
+	assertEquals(new BigDecimal(".10"), noDecimal.getValue());
 	assertEquals("USD 0.10", noDecimal.toString());
 
 	noDecimal = MoneyFactory.createMoney("USD -.12");
-	System.out.println(noDecimal.toString());
-	assertEquals(new BigDecimal("-.12"), noDecimal.getValue());
+	assertEquals(new BigDecimal("-0.12"), noDecimal.getValue());
+	assertEquals("USD -0.12", noDecimal.toString());
+	
+	noDecimal = MoneyFactory.createMoney("USD -0.12");
+	assertEquals(new BigDecimal("-0.12"), noDecimal.getValue());
 	assertEquals("USD -0.12", noDecimal.toString());
     }
 
@@ -187,6 +191,16 @@ public class Tests {
 	}
 	try {
 	    MoneyFactory.createMoney("HKJASFHKJA 1.00");
+	    fail("Must throw an invalid money exception because HKJASFHKJA is not included in available currencies");
+	} catch (InvalidMoneyTypeException e) {
+	}
+    }
+    
+    @Test
+    public void missingCurrencyType()
+    {
+	try {
+	    MoneyFactory.createMoney("1.00");
 	    fail("Must throw an invalid money exception because HKJASFHKJA is not included in available currencies");
 	} catch (InvalidMoneyTypeException e) {
 	}
