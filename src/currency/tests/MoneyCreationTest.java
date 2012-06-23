@@ -19,6 +19,51 @@ import currency.exceptions.InvalidMoneyValueException;
 public class MoneyCreationTest {
 
     @Test
+    public void characterInDecimal() {
+	try {
+	    MoneyFactory.createMoney("PHP 1.1a");
+	    fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
+	} catch (InvalidMoneyValueException e) {
+	}
+    }
+
+    @Test
+    public void characterInWholeNumber() {
+	try {
+	    MoneyFactory.createMoney("PHP 1a.00");
+	    fail("Must throw an invalid money value exception because it contains a non-numeric char");
+	} catch (InvalidMoneyValueException e) {
+	}
+    }
+
+    @Test
+    public void characterInDecimalNoWholeNumber() {
+	try {
+	    MoneyFactory.createMoney("PHP .1a");
+	    fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
+	} catch (InvalidMoneyValueException e) {
+	}
+    }
+
+    @Test
+    public void multipleDots() {
+	try {
+	    MoneyFactory.createMoney("PHP 1.10.12");
+	    fail("Must throw an invalid money value exception because of multiple decimal points");
+	} catch (InvalidMoneyValueException e) {
+	}
+    }
+
+    @Test
+    public void characterInWholeNumberNoDecimal() {
+	try {
+	    MoneyFactory.createMoney("PHP 1a");
+	    fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
+	} catch (InvalidMoneyValueException e) {
+	}
+    }
+
+    @Test
     public void decimalPrecision() {
 	try {
 	    MoneyFactory.createMoney("PHP 1.001");
@@ -26,26 +71,24 @@ public class MoneyCreationTest {
 	} catch (InvalidMoneyValueException e) {
 	}
     }
-    
+
     @Test
-    public void leadingZeroes()
-    {
+    public void leadingZeroes() {
 	try {
 	    Money result = MoneyFactory.createMoney("PHP 000001.01");
 	    Money expected = MoneyFactory.createMoney("PHP 1.01");
-	    assertEquals(expected,result);
+	    assertEquals(expected, result);
 	} catch (InvalidMoneyValueException e) {
 	    e.printStackTrace();
 	}
     }
-    
+
     @Test
-    public void trailingZeroes()
-    {
+    public void trailingZeroes() {
 	try {
 	    Money result = MoneyFactory.createMoney("PHP 1.01000");
 	    Money expected = MoneyFactory.createMoney("PHP 1.01000");
-	    assertEquals(expected,result);
+	    assertEquals(expected, result);
 	} catch (InvalidMoneyValueException e) {
 	    fail("must not throw exception since traling zeroes will just be ignored by the factory");
 	}
@@ -130,40 +173,40 @@ public class MoneyCreationTest {
     public void getValuePositiveCurrencies() {
 	Money usd = MoneyFactory.createMoney("USD 1.20");
 	assertEquals(new BigDecimal("1.20"), usd.getValue());
-	
+
 	usd = MoneyFactory.createMoney("PHP .3");
 	assertEquals(new BigDecimal("0.30"), usd.getValue());
-	
+
 	usd = MoneyFactory.createMoney("EUR .02");
 	assertEquals(new BigDecimal("0.02"), usd.getValue());
-	
+
 	usd = MoneyFactory.createMoney("USD .12");
 	assertEquals(new BigDecimal("0.12"), usd.getValue());
-	
+
 	usd = MoneyFactory.createMoney("EUR .60");
 	assertEquals(new BigDecimal("0.60"), usd.getValue());
-	
+
 	usd = MoneyFactory.createMoney("PHP 1");
 	assertEquals(new BigDecimal("1.00"), usd.getValue());
     }
-    
+
     @Test
     public void getValueNegativeCurrencies() {
 	Money usd = MoneyFactory.createMoney("USD -1.20");
 	assertEquals(new BigDecimal("-1.20"), usd.getValue());
-	
+
 	usd = MoneyFactory.createMoney("PHP -.3");
 	assertEquals(new BigDecimal("-0.30"), usd.getValue());
-	
+
 	usd = MoneyFactory.createMoney("EUR -.02");
 	assertEquals(new BigDecimal("-0.02"), usd.getValue());
-	
+
 	usd = MoneyFactory.createMoney("USD -.12");
 	assertEquals(new BigDecimal("-0.12"), usd.getValue());
-	
+
 	usd = MoneyFactory.createMoney("EUR -.60");
 	assertEquals(new BigDecimal("-0.60"), usd.getValue());
-	
+
 	usd = MoneyFactory.createMoney("PHP -1");
 	assertEquals(new BigDecimal("-1.00"), usd.getValue());
     }
@@ -172,43 +215,78 @@ public class MoneyCreationTest {
     public void stringOfPositiveCurrencies() {
 	Money usd = MoneyFactory.createMoney("USD 1.20");
 	assertEquals("USD 1.20", usd.toString());
-	
+
 	usd = MoneyFactory.createMoney("PHP .3");
 	assertEquals("PHP 0.30", usd.toString());
-	
+
 	usd = MoneyFactory.createMoney("EUR .02");
 	assertEquals("EUR 0.02", usd.toString());
-	
+
 	usd = MoneyFactory.createMoney("USD .12");
 	assertEquals("USD 0.12", usd.toString());
-	
+
 	usd = MoneyFactory.createMoney("EUR .60");
 	assertEquals("EUR 0.60", usd.toString());
-	
+
 	usd = MoneyFactory.createMoney("PHP 1");
 	assertEquals("PHP 1.00", usd.toString());
     }
-    
+
     @Test
-    public void stringOfNegativeCurrencies()
-    {
+    public void stringOfNegativeCurrencies() {
 	Money usd = MoneyFactory.createMoney("USD -1.20");
 	assertEquals("USD -1.20", usd.toString());
-	
+
 	usd = MoneyFactory.createMoney("PHP -.3");
 	assertEquals("PHP -0.30", usd.toString());
-	
+
 	usd = MoneyFactory.createMoney("EUR -.02");
 	assertEquals("EUR -0.02", usd.toString());
-	
+
 	usd = MoneyFactory.createMoney("USD -.12");
 	assertEquals("USD -0.12", usd.toString());
-	
+
 	usd = MoneyFactory.createMoney("EUR -.60");
 	assertEquals("EUR -0.60", usd.toString());
-	
+
 	usd = MoneyFactory.createMoney("PHP -1");
 	assertEquals("PHP -1.00", usd.toString());
+    }
+
+    @Test
+    public void valueOfPhp() {
+	Money php = MoneyFactory.createMoney("PHP 333.00");
+	assertEquals(new BigDecimal("333.00"), php.getValue());
+    }
+
+    @Test
+    public void valueOfEur() {
+	Money euro = MoneyFactory.createMoney("EUR 1.01");
+	assertEquals(new BigDecimal("1.01"), euro.getValue());
+    }
+
+    @Test
+    public void valueOfUsd() {
+	Money usd = MoneyFactory.createMoney("USD 1.20");
+	assertEquals(new BigDecimal("1.20"), usd.getValue());
+    }
+
+    @Test
+    public void stringOfPHP() {
+	Money php = MoneyFactory.createMoney("PHP 333.00");
+	assertEquals("PHP 333.00", php.toString());
+    }
+
+    @Test
+    public void stringOfEur() {
+	Money euro = MoneyFactory.createMoney("EUR 1.01");
+	assertEquals("EUR 1.01", euro.toString());
+    }
+
+    @Test
+    public void stringOfUsd() {
+	Money usd = MoneyFactory.createMoney("USD 1.20");
+	assertEquals("USD 1.20", usd.toString());
     }
 
     @Test
