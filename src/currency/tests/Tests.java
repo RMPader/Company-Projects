@@ -51,6 +51,41 @@ public class Tests {
 	}
 	
 	@Test
+	public void characterInDecimal(){
+		try{
+			MoneyFactory.createMoney("PHP 1.1a");
+			fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
+		} catch(InvalidMoneyValueException e){
+		}
+	}
+	
+	@Test
+	public void characterInWholeNumber(){
+		try{
+			MoneyFactory.createMoney("PHP 1a.00");
+			fail("Must throw an invalid money value exception because it contains a non-numeric char");
+		} catch(InvalidMoneyValueException e){
+		}
+	}
+	
+	@Test
+	public void characterInDecimalNoWholeNumber(){
+		try{
+			MoneyFactory.createMoney("PHP .1a");
+			fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
+		} catch(InvalidMoneyValueException e){
+		}
+	}
+	
+	@Test
+	public void characterInWholeNumberNoDecimal(){
+		try{
+			MoneyFactory.createMoney("PHP 1a");
+			fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
+		} catch(InvalidMoneyValueException e){
+		}
+	}
+	@Test
 	public void valueOfPhp() {
 		Money php = MoneyFactory.createMoney("PHP 333.00");
 		assertEquals(new BigDecimal("333.00"), php.getValue());
