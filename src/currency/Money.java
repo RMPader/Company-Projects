@@ -79,24 +79,27 @@ public abstract class Money {
 
 
 	public BigDecimal getValue() {
-		return new BigDecimal(stringValue);
+		return value;
 	}
 
 	public Money multiply(String multiplicand) {
-		BigDecimal result = getValue().multiply(new BigDecimal(multiplicand));
+		BigDecimal result = value.multiply(new BigDecimal(multiplicand));
+		result = result.setScale(DECIMAL_PRECISION, BigDecimal.ROUND_CEILING);
 		String moneyExpression = generateMoneyResultExpression(result);
 		return MoneyFactory.createMoney(moneyExpression);
 	}
 
 	public Money divide(String multiplicand) {
-		BigDecimal result = getValue().divide(new BigDecimal(multiplicand));
+		BigDecimal result = value.divide(new BigDecimal(multiplicand));
+		result = result.setScale(DECIMAL_PRECISION, BigDecimal.ROUND_CEILING);
 		String moneyExpression = generateMoneyResultExpression(result);
 		return MoneyFactory.createMoney(moneyExpression);
 	}
 
 	public Money add(Money augend) throws IncompatibleCurrencyException {
 		checkCurrency(augend);
-		BigDecimal result = getValue().add(augend.getValue());
+		BigDecimal result = value.add(augend.getValue());
+		result = result.setScale(DECIMAL_PRECISION, BigDecimal.ROUND_CEILING);
 		String moneyExpression = generateMoneyResultExpression(result);
 		return MoneyFactory.createMoney(moneyExpression);
 	}
@@ -104,7 +107,8 @@ public abstract class Money {
 	public Money subtract(Money subtrahend)
 			throws IncompatibleCurrencyException {
 		checkCurrency(subtrahend);
-		BigDecimal result = getValue().subtract(subtrahend.getValue());
+		BigDecimal result = value.subtract(subtrahend.getValue());
+		result = result.setScale(DECIMAL_PRECISION, BigDecimal.ROUND_CEILING);
 		String moneyExpression = generateMoneyResultExpression(result);
 		return MoneyFactory.createMoney(moneyExpression);
 	}
