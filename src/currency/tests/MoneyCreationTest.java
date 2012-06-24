@@ -88,9 +88,9 @@ public class MoneyCreationTest {
 	try {
 	    Money result = MoneyFactory.createMoney("PHP 1.01000");
 	    Money expected = MoneyFactory.createMoney("PHP 1.01000");
-	    assertEquals(expected, result);
+	    fail("must throw exception since traling zeroes will not be ignored by the factory");
 	} catch (InvalidMoneyValueException e) {
-	    fail("must not throw exception since traling zeroes will just be ignored by the factory");
+	    
 	}
     }
 

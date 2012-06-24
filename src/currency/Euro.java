@@ -1,8 +1,8 @@
 package currency;
 
 public class Euro extends Money {
-    public Euro(int wholeNumber, int decimalNumber,Currency currency,LeadingDecimalZeroes leadingDecimalZeroes) {
-	super(wholeNumber, decimalNumber, currency,leadingDecimalZeroes);
+    public Euro(String value) {
+	super(value);
 	}
 
     @Override
@@ -12,4 +12,9 @@ public class Euro extends Money {
 	sb.append(super.toString());
 	return sb.toString();
     }
+
+	@Override
+	public String getCurrencyType() {
+		return "EUR";
+	}
 }
