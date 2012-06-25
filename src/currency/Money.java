@@ -30,6 +30,11 @@ public abstract class Money {
 	}
     }
 
+    private static boolean startsWithDecimalPoint(String valueString) {
+	return valueString.charAt(0) == '.'
+		|| (valueString.charAt(0) == '-' && valueString.charAt(1) == '.');
+    }
+
     private static int wholeNumberPartToInteger(String valuePart) {
 	String splitValue[] = valuePart.split("\\.");
 	if (splitValue.length > 2) {
@@ -37,11 +42,6 @@ public abstract class Money {
 		    + ": input has many decimal points");
 	}
 	return Integer.parseInt(splitValue[MONEY_VALUE_WHOLE_NUMBER_INDEX]);
-    }
-
-    private static boolean startsWithDecimalPoint(String valueString) {
-	return valueString.charAt(0) == '.'
-		|| (valueString.charAt(0) == '-' && valueString.charAt(1) == '.');
     }
 
     private static int extractDecimalNumber(String valuePart) {
@@ -76,7 +76,7 @@ public abstract class Money {
     }
 
     private String normalizeValueStringFormat(String value) {
-	String decimalPart = generateDecimalPart();
+	String decimalPart = generateDecimalString();
 	StringBuilder sb = new StringBuilder();
 	if (isNegativeFractional(value)) {
 	    sb.append('-');
@@ -86,48 +86,88 @@ public abstract class Money {
 	return sb.toString();
     }
 
-    // in the case of a negative fractional (e.g. -0.01)
-    // the parsed integer whole number (in this case, -0) is represented as
-    // unsigned zero
-    // int wholeNumber = 0, so we check if the input is actually a negative.
-    private boolean isNegativeFractional(String value) {
-	return value.charAt(0) == '-' && wholeNumber == 0;
+    private String generateDecimalString() {
+	if (decimalNumber < 10) {
+	    return ".0" + decimalNumber;
+	} else {
+	    return "." + String.valueOf(decimalNumber);
+	}
     }
 
-    public BigDecimal getValue() {
-	return value;
+    private boolean isNegativeFractional(String inputValue) {
+	// in the case of a negative fractional (e.g. -0.01)
+	// the parsed integer whole number (in this case, -0) is represented as
+	// unsigned zero -> int wholeNumber = 0;
+	// so we must check if the input is actually a negative.
+	return inputValue.charAt(0) == '-' && wholeNumber == 0;
     }
 
     public Money multiply(String multiplicand) {
 	BigDecimal result = value.multiply(new BigDecimal(multiplicand));
-	result = result.setScale(DECIMAL_PRECISION, BigDecimal.ROUND_HALF_UP);
-	String moneyExpression = generateMoneyResultExpression(result);
-	return MoneyFactory.createMoney(moneyExpression);
+	return createScaledMoneyFromResult(result);
     }
 
     public Money divide(String multiplicand) {
 	BigDecimal result = value.divide(new BigDecimal(multiplicand));
+	return createScaledMoneyFromResult(result);
+    }
+
+    private Money createScaledMoneyFromResult(BigDecimal result) {
 	result = result.setScale(DECIMAL_PRECISION, BigDecimal.ROUND_HALF_UP);
-	String moneyExpression = generateMoneyResultExpression(result);
-	return MoneyFactory.createMoney(moneyExpression);
+	return createMoneyFromResult(result);
     }
 
     public Money add(Money augend) throws IncompatibleCurrencyException {
 	checkCurrency(augend);
 	BigDecimal result = value.add(augend.getValue());
-	String moneyExpression = generateMoneyResultExpression(result);
-	return MoneyFactory.createMoney(moneyExpression);
+	return createMoneyFromResult(result);
     }
 
     public Money subtract(Money subtrahend)
 	    throws IncompatibleCurrencyException {
 	checkCurrency(subtrahend);
 	BigDecimal result = value.subtract(subtrahend.getValue());
-	String moneyExpression = generateMoneyResultExpression(result);
+	return createMoneyFromResult(result);
+    }
+
+    private void checkCurrency(Money money)
+	    throws IncompatibleCurrencyException {
+	if (this.getCurrencyType() != money.getCurrencyType()) {
+	    String errorMessage = createIncompatibleCurrencyExceptionMessage(money);
+	    throw new IncompatibleCurrencyException(errorMessage);
+	}
+    }
+
+    private String createIncompatibleCurrencyExceptionMessage(Money operand) {
+	String toReturn = concatAll("cannot perform operation on :",
+					toString(), " and ", operand.toString());
+	return toReturn.toString();
+    }
+
+    private Money createMoneyFromResult(BigDecimal result) {
+	String moneyExpression = generateMoneyExpressionFromResult(result);
 	return MoneyFactory.createMoney(moneyExpression);
     }
 
+    private String generateMoneyExpressionFromResult(BigDecimal total) {
+	String resultValueString = total.toString();
+	String toReturn = concatAll(getCurrencyType(), " ", resultValueString);
+	return toReturn.toString();
+    }
+
+    private String concatAll(String... strings) {
+	StringBuilder newString = new StringBuilder();
+	for (String s : strings) {
+	    newString.append(s);
+	}
+	return newString.toString();
+    }
+
     public abstract String getCurrencyType();
+
+    public BigDecimal getValue() {
+	return value;
+    }
 
     @Override
     public String toString() {
@@ -165,39 +205,5 @@ public abstract class Money {
 	if (wholeNumber != other.wholeNumber)
 	    return false;
 	return true;
-    }
-
-    private String generateDecimalPart() {
-	if (decimalNumber < 10) {
-	    return ".0" + decimalNumber;
-	} else {
-	    return "." + String.valueOf(decimalNumber);
-	}
-    }
-
-    private void checkCurrency(Money money)
-	    throws IncompatibleCurrencyException {
-	if (this.getCurrencyType() != money.getCurrencyType()) {
-	    String errorMessage = createIncompatibleCurrencyExceptionMessage(money);
-	    throw new IncompatibleCurrencyException(errorMessage);
-	}
-    }
-
-    private String createIncompatibleCurrencyExceptionMessage(Money operand) {
-	StringBuffer errorMessage = new StringBuffer(
-		"cannot perform operation on :");
-	errorMessage.append(toString());
-	errorMessage.append(" and ");
-	errorMessage.append(operand.toString());
-	return errorMessage.toString();
-    }
-
-    private String generateMoneyResultExpression(BigDecimal total) {
-	StringBuffer rawResult = new StringBuffer();
-	rawResult.append(getCurrencyType());
-	rawResult.append(" ");
-	String format = total.toString();
-	rawResult.append(format);
-	return rawResult.toString();
     }
 }
