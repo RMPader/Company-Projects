@@ -6,11 +6,11 @@ import currency.exceptions.IncompatibleCurrencyException;
 import currency.exceptions.InvalidMoneyValueException;
 
 public abstract class Money {
-	
+
 	private final int decimalNumber;
 	private final int wholeNumber;
-	private final String stringValue;
 	private final BigDecimal value;
+
 	private static final int MONEY_VALUE_WHOLE_NUMBER_INDEX = 0;
 	private static final int MONEY_VALUE_DECIMAL_NUMBER_INDEX = 1;
 	private static final int DECIMAL_PRECISION = 2;
@@ -18,18 +18,33 @@ public abstract class Money {
 	protected Money(String value) {
 		wholeNumber = extractWholeNumber(value);
 		decimalNumber = extractDecimalNumber(value);
-		String wholeNumberPart = generateWholeNumberString();
-		String decimalPart = generateDecimalPart();
-		StringBuilder sb = new StringBuilder();
-		if(value.charAt(0) == '-' && wholeNumber == 0){
-			sb.append('-');
+		String valueString = normalizeValueStringFormat(value);
+		this.value = new BigDecimal(valueString);
+	}
+
+	private static int extractWholeNumber(String valuePart) {
+		if (startsWithDecimalPoint(valuePart)) {
+			return 0;
+		} else {
+			return wholeNumberPartToInteger(valuePart);
 		}
-		sb.append(wholeNumberPart);
-		sb.append(decimalPart);
-		stringValue = sb.toString();
-		this.value = new BigDecimal(stringValue);
+	}
+
+	private static int wholeNumberPartToInteger(String valuePart){
+		String splitValue[] = valuePart.split("\\.");
+		if (splitValue.length > 2) {
+			throw new InvalidMoneyValueException(valuePart
+					+ ": input has many decimal points");
+		}	
+		return Integer.parseInt(splitValue[MONEY_VALUE_WHOLE_NUMBER_INDEX]);
 	}
 	
+	private static boolean startsWithDecimalPoint(String valueString) {
+		return valueString.charAt(0) == '.'
+				|| (valueString.charAt(0) == '-' 
+					&& valueString.charAt(1) == '.');
+	}
+
 	private static int extractDecimalNumber(String valuePart) {
 		if (isWholeNumberOnly(valuePart)) {
 			return 0;
@@ -43,10 +58,7 @@ public abstract class Money {
 		int decimalNumber = Integer.parseInt(decimalFromInput);
 		return decimalNumber;
 	}
-	private static boolean startsWithDecimalPoint(String valueString) {
-		return valueString.charAt(0) == '.' || (valueString.charAt(0) == '-' && valueString.charAt(1) == '.');
-	}
-	
+
 	private static boolean isWholeNumberOnly(String valueString) {
 		return !valueString.contains(".");
 	}
@@ -64,19 +76,24 @@ public abstract class Money {
 		return decimalNumber.length() > DECIMAL_PRECISION;
 	}
 
-	private static int extractWholeNumber(String valuePart) {
-		if (startsWithDecimalPoint(valuePart)) {
-			return 0;
+	private String normalizeValueStringFormat(String value) {
+		String decimalPart = generateDecimalPart();
+		StringBuilder sb = new StringBuilder();
+		if (isNegativeFractional(value)) {
+			sb.append('-');
 		}
-		String splitValue[] = valuePart.split("\\.");
-		if (splitValue.length > 2) {
-			throw new InvalidMoneyValueException(valuePart
-					+ ": input has many decimal points");
-		}
-		int wholeNumber = Integer.parseInt(splitValue[MONEY_VALUE_WHOLE_NUMBER_INDEX]);
-		return wholeNumber;
+		sb.append(wholeNumber);
+		sb.append(decimalPart);
+		return sb.toString();
 	}
 
+	// in the case of a negative fractional (e.g. -0.01)
+	// the parsed integer whole number (in this case, -0) is represented as
+	// unsigned zero
+	// int wholeNumber = 0, so we check if the input is actually a negative.
+	private boolean isNegativeFractional(String value) {
+		return value.charAt(0) == '-' && wholeNumber == 0;
+	}
 
 	public BigDecimal getValue() {
 		return value;
@@ -84,14 +101,14 @@ public abstract class Money {
 
 	public Money multiply(String multiplicand) {
 		BigDecimal result = value.multiply(new BigDecimal(multiplicand));
-		result = result.setScale(DECIMAL_PRECISION, BigDecimal.ROUND_CEILING);
+		result = result.setScale(DECIMAL_PRECISION, BigDecimal.ROUND_HALF_UP);
 		String moneyExpression = generateMoneyResultExpression(result);
 		return MoneyFactory.createMoney(moneyExpression);
 	}
 
 	public Money divide(String multiplicand) {
 		BigDecimal result = value.divide(new BigDecimal(multiplicand));
-		result = result.setScale(DECIMAL_PRECISION, BigDecimal.ROUND_CEILING);
+		result = result.setScale(DECIMAL_PRECISION, BigDecimal.ROUND_HALF_UP);
 		String moneyExpression = generateMoneyResultExpression(result);
 		return MoneyFactory.createMoney(moneyExpression);
 	}
@@ -99,25 +116,23 @@ public abstract class Money {
 	public Money add(Money augend) throws IncompatibleCurrencyException {
 		checkCurrency(augend);
 		BigDecimal result = value.add(augend.getValue());
-		result = result.setScale(DECIMAL_PRECISION, BigDecimal.ROUND_CEILING);
 		String moneyExpression = generateMoneyResultExpression(result);
 		return MoneyFactory.createMoney(moneyExpression);
 	}
-	
+
 	public Money subtract(Money subtrahend)
 			throws IncompatibleCurrencyException {
 		checkCurrency(subtrahend);
 		BigDecimal result = value.subtract(subtrahend.getValue());
-		result = result.setScale(DECIMAL_PRECISION, BigDecimal.ROUND_CEILING);
 		String moneyExpression = generateMoneyResultExpression(result);
 		return MoneyFactory.createMoney(moneyExpression);
 	}
 
 	public abstract String getCurrencyType();
-	
+
 	@Override
 	public String toString() {
-		return stringValue;
+		return value.toString();
 	}
 
 	@Override
@@ -125,10 +140,8 @@ public abstract class Money {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + decimalNumber;
-		result = prime * result
-				+ ((stringValue == null) ? 0 : stringValue.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		result = prime * result + wholeNumber;
-		result = prime * getCurrencyType().hashCode();
 		return result;
 	}
 
@@ -141,35 +154,25 @@ public abstract class Money {
 		if (!(obj instanceof Money))
 			return false;
 		Money other = (Money) obj;
+		if (other.getCurrencyType() != getCurrencyType())
+			return false;
 		if (decimalNumber != other.decimalNumber)
 			return false;
-		if (stringValue == null) {
-			if (other.stringValue != null)
+		if (value == null) {
+			if (other.value != null)
 				return false;
-		} else if (!stringValue.equals(other.stringValue))
+		} else if (!value.equals(other.value))
 			return false;
 		if (wholeNumber != other.wholeNumber)
 			return false;
 		return true;
 	}
-	
-	private String generateWholeNumberString() {
-		if (isWholeNumberOrDecimalNegative()) {
-			return "-" + Math.abs(wholeNumber);
-		} else
-			return String.valueOf(wholeNumber);
-	}
-
-	private boolean isWholeNumberOrDecimalNegative() {
-		return wholeNumber < 0 || decimalNumber < 0;
-	}
 
 	private String generateDecimalPart() {
-		int decimalNumber = Math.abs(this.decimalNumber);
 		if (decimalNumber < 10) {
-			return ".0" + Math.abs(decimalNumber);
+			return ".0" + decimalNumber;
 		} else {
-			return "." + String.valueOf(Math.abs(decimalNumber));
+			return "." + String.valueOf(decimalNumber);
 		}
 	}
 

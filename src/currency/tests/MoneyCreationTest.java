@@ -85,8 +85,7 @@ public class MoneyCreationTest {
 	@Test
 	public void trailingZeroes() {
 		try {
-			Money result = MoneyFactory.createMoney("PHP 1.01000");
-			Money expected = MoneyFactory.createMoney("PHP 1.01000");
+			MoneyFactory.createMoney("PHP 1.01000");
 			fail("must throw exception since traling zeroes will not be ignored by the factory");
 		} catch (InvalidMoneyValueException e) {
 

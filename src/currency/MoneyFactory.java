@@ -27,7 +27,6 @@ public class MoneyFactory {
 						+ " is not yet implemented.");
 			}
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
 			throw new InvalidMoneyValueException(inputMoney
 					+ " contains a non-numeric character in it's value.");
 		} catch (ArrayIndexOutOfBoundsException e){
