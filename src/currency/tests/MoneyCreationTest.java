@@ -19,37 +19,43 @@ import currency.exceptions.InvalidMoneyValueException;
 public class MoneyCreationTest {
 
     @Test
-    public void symbolsInWholeNumber() {
+    public void noDecimalCreation() {
+	Money noDecimal = MoneyFactory.createMoney("USD -1");
+	assertEquals(new BigDecimal("-1.00"), noDecimal.getValue());
+	assertEquals("USD -1.00", noDecimal.toString());
+
+	noDecimal = MoneyFactory.createMoney("USD 1");
+	assertEquals(new BigDecimal("1.00"), noDecimal.getValue());
+	assertEquals("USD 1.00", noDecimal.toString());
+    }
+
+    @Test
+    public void noWholeNumberCreation() {
+	Money noDecimal = MoneyFactory.createMoney("USD .12");
+	assertEquals(new BigDecimal(".12"), noDecimal.getValue());
+	assertEquals("USD 0.12", noDecimal.toString());
+
+	noDecimal = MoneyFactory.createMoney("USD .1");
+	assertEquals(new BigDecimal(".10"), noDecimal.getValue());
+	assertEquals("USD 0.10", noDecimal.toString());
+
+	noDecimal = MoneyFactory.createMoney("USD -.12");
+	assertEquals(new BigDecimal("-0.12"), noDecimal.getValue());
+	assertEquals("USD -0.12", noDecimal.toString());
+
+	noDecimal = MoneyFactory.createMoney("USD -0.02");
+	assertEquals(new BigDecimal("-0.02"), noDecimal.getValue());
+	assertEquals("USD -0.02", noDecimal.toString());
+    }
+
+    @Test
+    public void symbolsInValue() {
 	try {
 	    MoneyFactory.createMoney("PHP 1&.1");
-	    fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
-	} catch (InvalidMoneyValueException e) {
-	}
-    }
-
-    @Test
-    public void symbolsInDecimal() {
-	try {
-	    MoneyFactory.createMoney("PHP 1.1)");
-	    fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
-	} catch (InvalidMoneyValueException e) {
-	}
-    }
-
-    @Test
-    public void symbolsInDecimalNoWholeNumber() {
-	try {
-	    MoneyFactory.createMoney("PHP .1*");
-	    fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
-	} catch (InvalidMoneyValueException e) {
-	}
-    }
-
-    @Test
-    public void symbolsInWholeNumberNoDecimal() {
-	try {
+	    MoneyFactory.createMoney("PHP 1.1*");
+	    MoneyFactory.createMoney("PHP .1!");
 	    MoneyFactory.createMoney("PHP 1^");
-	    fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
+	    fail("Must throw an invalid money value exception because whole number contains a non-numeric char");
 	} catch (InvalidMoneyValueException e) {
 	}
     }
@@ -64,37 +70,10 @@ public class MoneyCreationTest {
     }
 
     @Test
-    public void characterInWholeNumber() {
-	try {
-	    MoneyFactory.createMoney("PHP 1a.00");
-	    fail("Must throw an invalid money value exception because it contains a non-numeric char");
-	} catch (InvalidMoneyValueException e) {
-	}
-    }
-
-    @Test
-    public void characterInDecimalNoWholeNumber() {
-	try {
-	    MoneyFactory.createMoney("PHP .1a");
-	    fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
-	} catch (InvalidMoneyValueException e) {
-	}
-    }
-
-    @Test
     public void multipleDots() {
 	try {
 	    MoneyFactory.createMoney("PHP 1.10.12");
 	    fail("Must throw an invalid money value exception because of multiple decimal points");
-	} catch (InvalidMoneyValueException e) {
-	}
-    }
-
-    @Test
-    public void characterInWholeNumberNoDecimal() {
-	try {
-	    MoneyFactory.createMoney("PHP 1a");
-	    fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
 	} catch (InvalidMoneyValueException e) {
 	}
     }
@@ -125,38 +104,7 @@ public class MoneyCreationTest {
 	    MoneyFactory.createMoney("PHP 1.01000");
 	    fail("must throw exception since traling zeroes will not be ignored by the factory");
 	} catch (InvalidMoneyValueException e) {
-
 	}
-    }
-
-    @Test
-    public void noDecimalCreation() {
-	Money noDecimal = MoneyFactory.createMoney("USD -1");
-	assertEquals(new BigDecimal("-1.00"), noDecimal.getValue());
-	assertEquals("USD -1.00", noDecimal.toString());
-
-	noDecimal = MoneyFactory.createMoney("USD 1");
-	assertEquals(new BigDecimal("1.00"), noDecimal.getValue());
-	assertEquals("USD 1.00", noDecimal.toString());
-    }
-
-    @Test
-    public void noWholeNumberCreation() {
-	Money noDecimal = MoneyFactory.createMoney("USD .12");
-	assertEquals(new BigDecimal(".12"), noDecimal.getValue());
-	assertEquals("USD 0.12", noDecimal.toString());
-
-	noDecimal = MoneyFactory.createMoney("USD .1");
-	assertEquals(new BigDecimal(".10"), noDecimal.getValue());
-	assertEquals("USD 0.10", noDecimal.toString());
-
-	noDecimal = MoneyFactory.createMoney("USD -.12");
-	assertEquals(new BigDecimal("-0.12"), noDecimal.getValue());
-	assertEquals("USD -0.12", noDecimal.toString());
-
-	noDecimal = MoneyFactory.createMoney("USD -0.02");
-	assertEquals(new BigDecimal("-0.02"), noDecimal.getValue());
-	assertEquals("USD -0.02", noDecimal.toString());
     }
 
     @Test
@@ -287,41 +235,36 @@ public class MoneyCreationTest {
     @Test
     public void moneyEqualsNull() {
 	Money money = MoneyFactory.createMoney("USD 1.00");
-	assertEquals("test money null equality", false, money.equals(null));
+	assertFalse(money.equals(null));
     }
 
     @Test
     public void moneyEqualsReflexive() {
 	Money money = MoneyFactory.createMoney("USD 1.00");
-	if (money.equals(money) && money.hashCode() == money.hashCode())
-	    assertTrue("money reflexive test are true", true);
-	else
-	    fail("money is not equal to itself");
+	assertTrue(money.equals(money) && money.hashCode() == money.hashCode());
+
+	money = MoneyFactory.createMoney("PHP 1.10");
+	assertTrue(money.equals(money) && money.hashCode() == money.hashCode());
+
+	money = MoneyFactory.createMoney("USD 10.01");
+	assertTrue(money.equals(money) && money.hashCode() == money.hashCode());
     }
 
     @Test
     public void moneyEqualsSymmetric() {
-	Euro money1 = (Euro) MoneyFactory.createMoney("EUR 1.00");
-	Euro money2 = (Euro) MoneyFactory.createMoney("EUR 1.00");
-	if (money1.equals(money2) && money2.equals(money1)
-		&& money1.hashCode() == money2.hashCode()) {
-	    assertTrue("money1 and money2 are the same", true);
-	} else {
-	    fail("money failed symmetric test");
-	}
+	Euro money1 = (Euro) MoneyFactory.createMoney("EUR 12.34");
+	Euro money2 = (Euro) MoneyFactory.createMoney("EUR 12.34");
+	assertTrue((money1.equals(money2) && money2.equals(money1))
+		&& (money1.hashCode() == money2.hashCode()));
     }
 
     @Test
     public void moneyEqualsTransitive() {
-	USDollar money1 = (USDollar) MoneyFactory.createMoney("USD 1.00");
-	USDollar money2 = (USDollar) MoneyFactory.createMoney("USD 1.00");
-	USDollar money3 = (USDollar) MoneyFactory.createMoney("USD 1.00");
-	if (money1.equals(money2) && money2.equals(money3)
+	USDollar money1 = (USDollar) MoneyFactory.createMoney("USD 987.65");
+	USDollar money2 = (USDollar) MoneyFactory.createMoney("USD 987.65");
+	USDollar money3 = (USDollar) MoneyFactory.createMoney("USD 987.65");
+	assertTrue(money1.equals(money2) && money2.equals(money3)
 		&& money1.equals(money3)
-		&& money1.hashCode() == money3.hashCode()) {
-	    assertTrue("money1 and money3 are the same", true);
-	} else {
-	    fail("money1 and money3 are not the same");
-	}
+		&& money1.hashCode() == money3.hashCode());
     }
 }
