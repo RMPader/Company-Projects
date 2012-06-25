@@ -3,23 +3,75 @@ package currency;
 import java.math.BigDecimal;
 
 import currency.exceptions.IncompatibleCurrencyException;
+import currency.exceptions.InvalidMoneyTypeException;
 import currency.exceptions.InvalidMoneyValueException;
 
-public abstract class Money {
-
-    private final int decimalNumber;
-    private final int wholeNumber;
-    private final BigDecimal value;
-
+public class Money {
+    
+    private static final int MONEY_CURRENCY_INDEX = 0;
+    private static final int MONEY_VALUE_INDEX = 1;
     private static final int MONEY_VALUE_WHOLE_NUMBER_INDEX = 0;
     private static final int MONEY_VALUE_DECIMAL_NUMBER_INDEX = 1;
     private static final int DECIMAL_PRECISION = 2;
+    
+    private final int decimalNumber;
+    private final int wholeNumber;
+    private final BigDecimal value;
+    private final Currency currency;
 
-    protected Money(String value) {
-	wholeNumber = extractWholeNumber(value);
-	decimalNumber = extractDecimalNumber(value);
-	String valueString = normalizeValueStringFormat(value);
-	this.value = new BigDecimal(valueString);
+    @SuppressWarnings("unused")
+    private Money() {
+	decimalNumber = 0;
+	wholeNumber = 0;
+	value = null;
+	currency = null;
+    }
+
+    public Money(String inputMoney) 
+	    throws InvalidMoneyTypeException, InvalidMoneyValueException {
+	try {
+	    String[] moneyExpression = inputMoney.split(" ");
+	    String valueFromInput = moneyExpression[MONEY_VALUE_INDEX];
+	    String currencyFromInput = moneyExpression[MONEY_CURRENCY_INDEX];
+	    String valueString = normalizeValueStringFormat(valueFromInput);
+
+	    currency = currencyTypeFromString(currencyFromInput);
+	    wholeNumber = extractWholeNumber(valueFromInput);
+	    decimalNumber = extractDecimalNumber(valueFromInput);
+	    this.value = new BigDecimal(valueString);
+	} catch (NumberFormatException e) {
+	    throw new InvalidMoneyValueException(inputMoney
+		    + " contains a non-numeric character in it's value.");
+	} catch (ArrayIndexOutOfBoundsException e) {
+	    throw new InvalidMoneyTypeException(inputMoney
+		    + " has no currency.");
+	}
+    }
+
+    private static Currency currencyTypeFromString(String currencyPart)
+	    throws InvalidMoneyTypeException {
+	try {
+	    return Currency.valueOf(currencyPart);
+	} catch (IllegalArgumentException e) {
+	    StringBuilder errorMessage = createMoneyTypeExceptionMessage(currencyPart);
+	    throw new InvalidMoneyTypeException(errorMessage.toString());
+	}
+
+    }
+
+    private static StringBuilder createMoneyTypeExceptionMessage(
+	    String suspectString) {
+	StringBuilder errorMessage = new StringBuilder(suspectString);
+	errorMessage.append(", type can only be ");
+	return appendCurrencyTypes(errorMessage);
+    }
+
+    private static StringBuilder appendCurrencyTypes(StringBuilder errorMessage) {
+	for (Currency type : Currency.values()) {
+	    errorMessage.append(type.toString());
+	    errorMessage.append(",");
+	}
+	return errorMessage.append(".");
     }
 
     private static int extractWholeNumber(String valuePart) {
@@ -140,13 +192,13 @@ public abstract class Money {
 
     private String createIncompatibleCurrencyExceptionMessage(Money operand) {
 	String toReturn = concatAll("cannot perform operation on :",
-					toString(), " and ", operand.toString());
+		toString(), " and ", operand.toString());
 	return toReturn.toString();
     }
 
     private Money createMoneyFromResult(BigDecimal result) {
 	String moneyExpression = generateMoneyExpressionFromResult(result);
-	return MoneyFactory.createMoney(moneyExpression);
+	return new Money(moneyExpression);
     }
 
     private String generateMoneyExpressionFromResult(BigDecimal total) {
@@ -163,7 +215,9 @@ public abstract class Money {
 	return newString.toString();
     }
 
-    public abstract String getCurrencyType();
+    public String getCurrencyType() {
+	return currency.toString();
+    }
 
     public BigDecimal getValue() {
 	return value;
@@ -171,13 +225,18 @@ public abstract class Money {
 
     @Override
     public String toString() {
-	return value.toString();
+	StringBuilder sb = new StringBuilder(getCurrencyType());
+	sb.append(" ");
+	sb.append(value.toString());
+	return sb.toString();
     }
 
     @Override
     public int hashCode() {
 	final int prime = 31;
 	int result = 1;
+	result = prime * result
+		+ ((currency == null) ? 0 : currency.hashCode());
 	result = prime * result + decimalNumber;
 	result = prime * result + ((value == null) ? 0 : value.hashCode());
 	result = prime * result + wholeNumber;
@@ -186,24 +245,32 @@ public abstract class Money {
 
     @Override
     public boolean equals(Object obj) {
-	if (this == obj)
+	if (this == obj) {
 	    return true;
-	if (obj == null)
+	}
+	if (obj == null) {
 	    return false;
-	if (!(obj instanceof Money))
+	}
+	if (getClass() != obj.getClass()) {
 	    return false;
+	}
 	Money other = (Money) obj;
-	if (other.getCurrencyType() != getCurrencyType())
+	if (currency != other.currency) {
 	    return false;
-	if (decimalNumber != other.decimalNumber)
+	}
+	if (decimalNumber != other.decimalNumber) {
 	    return false;
+	}
 	if (value == null) {
-	    if (other.value != null)
+	    if (other.value != null) {
 		return false;
-	} else if (!value.equals(other.value))
+	    }
+	} else if (!value.equals(other.value)) {
 	    return false;
-	if (wholeNumber != other.wholeNumber)
+	}
+	if (wholeNumber != other.wholeNumber) {
 	    return false;
+	}
 	return true;
     }
 }
