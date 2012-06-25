@@ -12,18 +12,20 @@ public class Money {
     private final int wholeNumber;
     private final BigDecimal value;
     private final Currency currency;
-    
+
     private static final int MONEY_VALUE_WHOLE_NUMBER_INDEX = 0;
     private static final int MONEY_VALUE_DECIMAL_NUMBER_INDEX = 1;
     private static final int DECIMAL_PRECISION = 2;
-    
+
     private static final int MONEY_CURRENCY_INDEX = 0;
     private static final int MONEY_VALUE_INDEX = 1;
 
-    public Money(String inputMoney) throws InvalidMoneyTypeException,
-	    InvalidMoneyValueException {
+    private static final String MONEY_EXPRESSION_DELIMITER = " ";
+    private static final String VALUE_DELIMITER = "\\.";
+
+    public Money(String inputMoney) throws InvalidMoneyTypeException, InvalidMoneyValueException {
 	try {
-	    String[] moneyExpression = inputMoney.split(" ");
+	    String[] moneyExpression = inputMoney.split(MONEY_EXPRESSION_DELIMITER);
 	    String valueFromInput = moneyExpression[MONEY_VALUE_INDEX];
 	    String currencyFromInput = moneyExpression[MONEY_CURRENCY_INDEX];
 
@@ -33,16 +35,13 @@ public class Money {
 	    String valueString = normalizeValueStringFormat(valueFromInput);
 	    this.value = new BigDecimal(valueString);
 	} catch (NumberFormatException e) {
-	    throw new InvalidMoneyValueException(inputMoney
-		    + " contains a non-numeric character in it's value.");
+	    throw new InvalidMoneyValueException(inputMoney + " contains a non-numeric character in it's value.");
 	} catch (ArrayIndexOutOfBoundsException e) {
-	    throw new InvalidMoneyTypeException(inputMoney
-		    + " has no currency.");
+	    throw new InvalidMoneyTypeException(inputMoney + " has no currency.");
 	}
     }
 
-    private static Currency currencyTypeFromString(String currencyPart)
-	    throws InvalidMoneyTypeException {
+    private static Currency currencyTypeFromString(String currencyPart) throws InvalidMoneyTypeException {
 	try {
 	    return Currency.valueOf(currencyPart);
 	} catch (IllegalArgumentException e) {
@@ -52,8 +51,7 @@ public class Money {
 
     }
 
-    private static StringBuilder createMoneyTypeExceptionMessage(
-	    String suspectString) {
+    private static StringBuilder createMoneyTypeExceptionMessage(String suspectString) {
 	StringBuilder errorMessage = new StringBuilder(suspectString);
 	errorMessage.append(", type can only be ");
 	return appendCurrencyTypes(errorMessage);
@@ -76,15 +74,13 @@ public class Money {
     }
 
     private static boolean startsWithDecimalPoint(String valueString) {
-	return valueString.charAt(0) == '.'
-		|| (valueString.charAt(0) == '-' && valueString.charAt(1) == '.');
+	return valueString.charAt(0) == '.' || (valueString.charAt(0) == '-' && valueString.charAt(1) == '.');
     }
 
     private static int wholeNumberPartToInteger(String valuePart) {
-	String splitValue[] = valuePart.split("\\.");
+	String splitValue[] = valuePart.split(VALUE_DELIMITER);
 	if (splitValue.length > 2) {
-	    throw new InvalidMoneyValueException(valuePart
-		    + ": input has many decimal points");
+	    throw new InvalidMoneyValueException(valuePart + ": input has many decimal points");
 	}
 	return Integer.parseInt(splitValue[MONEY_VALUE_WHOLE_NUMBER_INDEX]);
     }
@@ -96,8 +92,7 @@ public class Money {
 	String decimalFromInput = extractDecimalFromInput(valuePart);
 
 	if (decimalPrecisionIsMoreThanTwo(decimalFromInput)) {
-	    throw new InvalidMoneyValueException(valuePart
-		    + " has higher precision. Expected is 2 (e.g 1.00, 30.01)");
+	    throw new InvalidMoneyValueException(valuePart + " has higher precision. Expected is 2 (e.g 1.00, 30.01)");
 	}
 	int decimalNumber = Integer.parseInt(decimalFromInput);
 	return decimalNumber;
@@ -108,7 +103,7 @@ public class Money {
     }
 
     private static String extractDecimalFromInput(String value) {
-	String[] splitValue = value.split("\\.");
+	String[] splitValue = value.split(VALUE_DELIMITER);
 	String decimalFromInput = splitValue[MONEY_VALUE_DECIMAL_NUMBER_INDEX];
 	if (decimalFromInput.length() == 1) {
 	    decimalFromInput = decimalFromInput + "0";
@@ -168,15 +163,13 @@ public class Money {
 	return createMoneyFromResult(result);
     }
 
-    public Money subtract(Money subtrahend)
-	    throws IncompatibleCurrencyException {
+    public Money subtract(Money subtrahend) throws IncompatibleCurrencyException {
 	checkCurrency(subtrahend);
 	BigDecimal result = value.subtract(subtrahend.getValue());
 	return createMoneyFromResult(result);
     }
 
-    private void checkCurrency(Money money)
-	    throws IncompatibleCurrencyException {
+    private void checkCurrency(Money money) throws IncompatibleCurrencyException {
 	if (this.getCurrencyType() != money.getCurrencyType()) {
 	    String errorMessage = createIncompatibleCurrencyExceptionMessage(money);
 	    throw new IncompatibleCurrencyException(errorMessage);
@@ -184,8 +177,7 @@ public class Money {
     }
 
     private String createIncompatibleCurrencyExceptionMessage(Money operand) {
-	String toReturn = concatAll("cannot perform operation on :",
-		toString(), " and ", operand.toString());
+	String toReturn = concatAll("cannot perform operation on :", toString(), " and ", operand.toString());
 	return toReturn.toString();
     }
 
@@ -228,8 +220,7 @@ public class Money {
     public int hashCode() {
 	final int prime = 31;
 	int result = 1;
-	result = prime * result
-		+ ((currency == null) ? 0 : currency.hashCode());
+	result = prime * result + ((currency == null) ? 0 : currency.hashCode());
 	result = prime * result + decimalNumber;
 	result = prime * result + ((value == null) ? 0 : value.hashCode());
 	result = prime * result + wholeNumber;
