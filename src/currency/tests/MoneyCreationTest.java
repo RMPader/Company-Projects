@@ -131,28 +131,6 @@ public class MoneyCreationTest {
     }
 
     @Test
-    public void incompatibleCurrency() {
-	Money augend = MoneyFactory.createMoney("USD 1.0");
-	Money addend = MoneyFactory.createMoney("EUR 2.0");
-	try {
-	    augend.add(addend);
-	} catch (IncompatibleCurrencyException e) {
-	}
-	augend = MoneyFactory.createMoney("USD 1.0");
-	addend = MoneyFactory.createMoney("PHP 2.0");
-	try {
-	    augend.add(addend);
-	} catch (IncompatibleCurrencyException e) {
-	}
-	augend = MoneyFactory.createMoney("PHP 1.0");
-	addend = MoneyFactory.createMoney("EUR 2.0");
-	try {
-	    augend.add(addend);
-	} catch (IncompatibleCurrencyException e) {
-	}
-    }
-
-    @Test
     public void noDecimalCreation() {
 	Money noDecimal = MoneyFactory.createMoney("USD -1");
 	assertEquals(new BigDecimal("-1.00"), noDecimal.getValue());

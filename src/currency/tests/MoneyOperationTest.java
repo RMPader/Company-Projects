@@ -9,8 +9,53 @@ import org.junit.Test;
 
 import currency.Money;
 import currency.MoneyFactory;
+import currency.exceptions.IncompatibleCurrencyException;
 
 public class MoneyOperationTest {
+    
+    @Test
+    public void incompatibleCurrencyUsingAddition() {
+	Money augend = MoneyFactory.createMoney("USD 1.0");
+	Money addend = MoneyFactory.createMoney("EUR 2.0");
+	try {
+	    augend.add(addend);
+	} catch (IncompatibleCurrencyException e) {
+	}
+	augend = MoneyFactory.createMoney("USD 1.0");
+	addend = MoneyFactory.createMoney("PHP 2.0");
+	try {
+	    augend.add(addend);
+	} catch (IncompatibleCurrencyException e) {
+	}
+	augend = MoneyFactory.createMoney("PHP 1.0");
+	addend = MoneyFactory.createMoney("EUR 2.0");
+	try {
+	    augend.add(addend);
+	} catch (IncompatibleCurrencyException e) {
+	}
+    }
+    
+    @Test
+    public void incompatibleCurrencyUsingSubtraction() {
+	Money minuend = MoneyFactory.createMoney("USD 1.0");
+	Money subtrahend = MoneyFactory.createMoney("EUR 2.0");
+	try {
+	    minuend.subtract(subtrahend);
+	} catch (IncompatibleCurrencyException e) {
+	}
+	minuend = MoneyFactory.createMoney("USD 1.0");
+	subtrahend = MoneyFactory.createMoney("PHP 2.0");
+	try {
+	    minuend.subtract(subtrahend);
+	} catch (IncompatibleCurrencyException e) {
+	}
+	minuend = MoneyFactory.createMoney("PHP 1.0");
+	subtrahend = MoneyFactory.createMoney("EUR 2.0");
+	try {
+	    minuend.subtract(subtrahend);
+	} catch (IncompatibleCurrencyException e) {
+	}
+    }
 
     @Test
     public void divisionByZero() {
