@@ -13,7 +13,6 @@ import currency.Euro;
 import currency.Money;
 import currency.MoneyFactory;
 import currency.USDollar;
-import currency.exceptions.IncompatibleCurrencyException;
 import currency.exceptions.InvalidMoneyTypeException;
 import currency.exceptions.InvalidMoneyValueException;
 
