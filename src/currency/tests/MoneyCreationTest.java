@@ -1,6 +1,7 @@
 package currency.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -17,6 +18,42 @@ import currency.exceptions.InvalidMoneyTypeException;
 import currency.exceptions.InvalidMoneyValueException;
 
 public class MoneyCreationTest {
+
+    @Test
+    public void symbolsInWholeNumber() {
+	try {
+	    MoneyFactory.createMoney("PHP 1&.1");
+	    fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
+	} catch (InvalidMoneyValueException e) {
+	}
+    }
+
+    @Test
+    public void symbolsInDecimal() {
+	try {
+	    MoneyFactory.createMoney("PHP 1.1)");
+	    fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
+	} catch (InvalidMoneyValueException e) {
+	}
+    }
+
+    @Test
+    public void symbolsInDecimalNoWholeNumber() {
+	try {
+	    MoneyFactory.createMoney("PHP .1*");
+	    fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
+	} catch (InvalidMoneyValueException e) {
+	}
+    }
+
+    @Test
+    public void symbolsInWholeNumberNoDecimal() {
+	try {
+	    MoneyFactory.createMoney("PHP 1^");
+	    fail("Must throw an invalid money value exception because decimal contains a non-numeric char");
+	} catch (InvalidMoneyValueException e) {
+	}
+    }
 
     @Test
     public void characterInDecimal() {
@@ -79,6 +116,7 @@ public class MoneyCreationTest {
 	    Money expected = MoneyFactory.createMoney("PHP 1.01");
 	    assertEquals(expected, result);
 	} catch (InvalidMoneyValueException e) {
+	    fail("must not throw exception since leading zeroes should be ignored");
 	}
     }
 
@@ -162,7 +200,7 @@ public class MoneyCreationTest {
     public void missingCurrencyType() {
 	try {
 	    MoneyFactory.createMoney("1.00");
-	    fail("Must throw a MissingCurrencyTypeException");
+	    fail("Must throw an invalid money exception since currency type is missing");
 	} catch (InvalidMoneyTypeException e) {
 	}
     }
@@ -252,39 +290,21 @@ public class MoneyCreationTest {
     }
 
     @Test
-    public void valueOfPhp() {
-	Money php = MoneyFactory.createMoney("PHP 333.00");
-	assertEquals(new BigDecimal("333.00"), php.getValue());
+    public void sameCurrencyDiffValue() {
+	Money money1 = MoneyFactory.createMoney("PHP 1");
+	Money money2 = MoneyFactory.createMoney("PHP 1.01");
+	assertFalse(money1.equals(money2));
     }
 
     @Test
-    public void valueOfEur() {
-	Money euro = MoneyFactory.createMoney("EUR 1.01");
-	assertEquals(new BigDecimal("1.01"), euro.getValue());
-    }
+    public void sameValueDiffCurrency() {
+	Money money1 = MoneyFactory.createMoney("PHP 10");
+	Money money2 = MoneyFactory.createMoney("USD 10");
+	assertFalse(money1.equals(money2));
 
-    @Test
-    public void valueOfUsd() {
-	Money usd = MoneyFactory.createMoney("USD 1.20");
-	assertEquals(new BigDecimal("1.20"), usd.getValue());
-    }
-
-    @Test
-    public void stringOfPHP() {
-	Money php = MoneyFactory.createMoney("PHP 333.00");
-	assertEquals("PHP 333.00", php.toString());
-    }
-
-    @Test
-    public void stringOfEur() {
-	Money euro = MoneyFactory.createMoney("EUR 1.01");
-	assertEquals("EUR 1.01", euro.toString());
-    }
-
-    @Test
-    public void stringOfUsd() {
-	Money usd = MoneyFactory.createMoney("USD 1.20");
-	assertEquals("USD 1.20", usd.toString());
+	money1 = MoneyFactory.createMoney("PHP .1");
+	money2 = MoneyFactory.createMoney("USD .1");
+	assertFalse(money1.equals(money2));
     }
 
     @Test

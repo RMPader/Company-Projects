@@ -23,44 +23,90 @@ public class MoneyOperationTest {
     }
 
     @Test
+    public void divisionWithRoundingOff() {
+	Money dividend = MoneyFactory.createMoney("USD 0.06");
+	Money result = MoneyFactory.createMoney("USD 0.01");
+	Money expected = dividend.divide("5");
+	assertEquals(expected, result);
+
+	dividend = MoneyFactory.createMoney("USD 0.02");
+	result = MoneyFactory.createMoney("USD 0");
+	expected = dividend.divide("5");
+	assertEquals(expected, result);
+
+	dividend = MoneyFactory.createMoney("USD 0.02");
+	result = MoneyFactory.createMoney("USD 0");
+	expected = dividend.divide("5");
+	assertEquals(expected, result);
+
+	dividend = MoneyFactory.createMoney("USD 0.05");
+	result = MoneyFactory.createMoney("USD .01");
+	expected = dividend.divide("5");
+	assertEquals(expected, result);
+    }
+
+    @Test
+    public void multiplyWithRoundingOff() {
+	Money multiplier = MoneyFactory.createMoney("USD 0.01");
+	Money result = MoneyFactory.createMoney("USD .01");
+	Money expected = multiplier.multiply(".5");
+	assertEquals(expected, result);
+
+	multiplier = MoneyFactory.createMoney("USD 0.01");
+	result = MoneyFactory.createMoney("USD 0");
+	expected = multiplier.multiply(".1");
+	assertEquals(expected, result);
+
+	multiplier = MoneyFactory.createMoney("USD 1");
+	result = MoneyFactory.createMoney("USD 0");
+	expected = multiplier.multiply(".001");
+	assertEquals(expected, result);
+
+	multiplier = MoneyFactory.createMoney("USD 5");
+	result = MoneyFactory.createMoney("USD .01");
+	expected = multiplier.multiply(".001");
+	assertEquals(expected, result);
+    }
+
+    @Test
     public void positiveCurrencyDivision() {
-	Money multiplier = MoneyFactory.createMoney("PHP 0.1");
-	Money result = multiplier.divide("2");
+	Money dividend = MoneyFactory.createMoney("PHP 0.1");
+	Money result = dividend.divide("2");
 	Money expected = MoneyFactory.createMoney("PHP 0.05");
 	assertEquals(expected, result);
 	assertEquals("PHP 0.05", result.toString());
 	assertEquals(new BigDecimal("0.05"), result.getValue());
 
-	multiplier = MoneyFactory.createMoney("USD 0");
-	result = multiplier.divide("0.1");
+	dividend = MoneyFactory.createMoney("USD 0");
+	result = dividend.divide("0.1");
 	expected = MoneyFactory.createMoney("USD 0.0");
 	assertEquals(expected, result);
 	assertEquals("USD 0.00", result.toString());
 	assertEquals(new BigDecimal("0.00"), result.getValue());
 
-	multiplier = MoneyFactory.createMoney("PHP 0.1");
-	result = multiplier.divide("0.2");
+	dividend = MoneyFactory.createMoney("PHP 0.1");
+	result = dividend.divide("0.2");
 	expected = MoneyFactory.createMoney("PHP 0.5");
 	assertEquals(expected, result);
 	assertEquals("PHP 0.50", result.toString());
 	assertEquals(new BigDecimal("0.50"), result.getValue());
 
-	multiplier = MoneyFactory.createMoney("EUR 1.1");
-	result = multiplier.divide("0.2");
+	dividend = MoneyFactory.createMoney("EUR 1.1");
+	result = dividend.divide("0.2");
 	expected = MoneyFactory.createMoney("EUR 5.5");
 	assertEquals(expected, result);
 	assertEquals("EUR 5.50", result.toString());
 	assertEquals(new BigDecimal("5.50"), result.getValue());
 
-	multiplier = MoneyFactory.createMoney("PHP 5");
-	result = multiplier.divide("2");
+	dividend = MoneyFactory.createMoney("PHP 5");
+	result = dividend.divide("2");
 	expected = MoneyFactory.createMoney("PHP 2.5");
 	assertEquals(expected, result);
 	assertEquals("PHP 2.50", result.toString());
 	assertEquals(new BigDecimal("2.50"), result.getValue());
 
-	multiplier = MoneyFactory.createMoney("PHP 6");
-	result = multiplier.divide("2");
+	dividend = MoneyFactory.createMoney("PHP 6");
+	result = dividend.divide("2");
 	expected = MoneyFactory.createMoney("PHP 3");
 	assertEquals(expected, result);
 	assertEquals("PHP 3.00", result.toString());
@@ -69,29 +115,29 @@ public class MoneyOperationTest {
 
     @Test
     public void negativeCurrencyDivision() {
-	Money multiplier = MoneyFactory.createMoney("PHP -0.1");
-	Money result = multiplier.divide("2");
+	Money dividend = MoneyFactory.createMoney("PHP -0.1");
+	Money result = dividend.divide("2");
 	Money expected = MoneyFactory.createMoney("PHP -0.05");
 	assertEquals(expected, result);
 	assertEquals("PHP -0.05", result.toString());
 	assertEquals(new BigDecimal("-0.05"), result.getValue());
 
-	multiplier = MoneyFactory.createMoney("USD 0");
-	result = multiplier.divide("-0.1");
+	dividend = MoneyFactory.createMoney("USD 0");
+	result = dividend.divide("-0.1");
 	expected = MoneyFactory.createMoney("USD 0.0");
 	assertEquals(expected, result);
 	assertEquals("USD 0.00", result.toString());
 	assertEquals(new BigDecimal("0.00"), result.getValue());
 
-	multiplier = MoneyFactory.createMoney("PHP -0.1");
-	result = multiplier.divide("-0.2");
+	dividend = MoneyFactory.createMoney("PHP -0.1");
+	result = dividend.divide("-0.2");
 	expected = MoneyFactory.createMoney("PHP 0.5");
 	assertEquals(expected, result);
 	assertEquals("PHP 0.50", result.toString());
 	assertEquals(new BigDecimal("0.50"), result.getValue());
 
-	multiplier = MoneyFactory.createMoney("EUR 1.1");
-	result = multiplier.divide("-0.2");
+	dividend = MoneyFactory.createMoney("EUR 1.1");
+	result = dividend.divide("-0.2");
 	expected = MoneyFactory.createMoney("EUR -5.5");
 	assertEquals(expected, result);
 	assertEquals("EUR -5.50", result.toString());
