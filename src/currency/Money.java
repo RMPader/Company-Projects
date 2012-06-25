@@ -90,7 +90,7 @@ public abstract class Money {
 	if (decimalNumber < 10) {
 	    return ".0" + decimalNumber;
 	} else {
-	    return "." + String.valueOf(decimalNumber);
+	    return "." + decimalNumber;
 	}
     }
 
