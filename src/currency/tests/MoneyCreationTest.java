@@ -290,25 +290,23 @@ public class MoneyCreationTest {
     }
 
     @Test
-    public void sameCurrencyDiffValue()
-    {
+    public void sameCurrencyDiffValue() {
 	Money money1 = MoneyFactory.createMoney("PHP 1");
 	Money money2 = MoneyFactory.createMoney("PHP 1.01");
 	assertFalse(money1.equals(money2));
     }
-    
+
     @Test
-    public void sameValueDiffCurrency()
-    {
+    public void sameValueDiffCurrency() {
 	Money money1 = MoneyFactory.createMoney("PHP 10");
 	Money money2 = MoneyFactory.createMoney("USD 10");
 	assertFalse(money1.equals(money2));
-	
+
 	money1 = MoneyFactory.createMoney("PHP .1");
 	money2 = MoneyFactory.createMoney("USD .1");
 	assertFalse(money1.equals(money2));
     }
-    
+
     @Test
     public void moneyEqualsNull() {
 	Money money = MoneyFactory.createMoney("USD 1.00");

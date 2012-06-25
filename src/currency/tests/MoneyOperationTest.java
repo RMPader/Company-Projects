@@ -33,18 +33,18 @@ public class MoneyOperationTest {
 	result = MoneyFactory.createMoney("USD 0");
 	expected = dividend.divide("5");
 	assertEquals(expected, result);
-	
+
 	dividend = MoneyFactory.createMoney("USD 0.02");
 	result = MoneyFactory.createMoney("USD 0");
 	expected = dividend.divide("5");
 	assertEquals(expected, result);
-	
+
 	dividend = MoneyFactory.createMoney("USD 0.05");
 	result = MoneyFactory.createMoney("USD .01");
 	expected = dividend.divide("5");
 	assertEquals(expected, result);
     }
-    
+
     @Test
     public void multiplyWithRoundingOff() {
 	Money multiplier = MoneyFactory.createMoney("USD 0.01");
@@ -61,7 +61,7 @@ public class MoneyOperationTest {
 	result = MoneyFactory.createMoney("USD 0");
 	expected = multiplier.multiply(".001");
 	assertEquals(expected, result);
-	
+
 	multiplier = MoneyFactory.createMoney("USD 5");
 	result = MoneyFactory.createMoney("USD .01");
 	expected = multiplier.multiply(".001");
