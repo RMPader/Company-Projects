@@ -3,7 +3,7 @@ package currency;
 public class Euro extends Money {
     public Euro(String value) {
 	super(value);
-	}
+    }
 
     @Override
     public String toString() {
@@ -13,8 +13,8 @@ public class Euro extends Money {
 	return sb.toString();
     }
 
-	@Override
-	public String getCurrencyType() {
-		return "EUR";
-	}
+    @Override
+    public String getCurrencyType() {
+	return "EUR";
+    }
 }
