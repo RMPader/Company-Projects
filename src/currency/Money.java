@@ -7,37 +7,30 @@ import currency.exceptions.InvalidMoneyTypeException;
 import currency.exceptions.InvalidMoneyValueException;
 
 public class Money {
-    
-    private static final int MONEY_CURRENCY_INDEX = 0;
-    private static final int MONEY_VALUE_INDEX = 1;
-    private static final int MONEY_VALUE_WHOLE_NUMBER_INDEX = 0;
-    private static final int MONEY_VALUE_DECIMAL_NUMBER_INDEX = 1;
-    private static final int DECIMAL_PRECISION = 2;
-    
+
     private final int decimalNumber;
     private final int wholeNumber;
     private final BigDecimal value;
     private final Currency currency;
+    
+    private static final int MONEY_VALUE_WHOLE_NUMBER_INDEX = 0;
+    private static final int MONEY_VALUE_DECIMAL_NUMBER_INDEX = 1;
+    private static final int DECIMAL_PRECISION = 2;
+    
+    private static final int MONEY_CURRENCY_INDEX = 0;
+    private static final int MONEY_VALUE_INDEX = 1;
 
-    @SuppressWarnings("unused")
-    private Money() {
-	decimalNumber = 0;
-	wholeNumber = 0;
-	value = null;
-	currency = null;
-    }
-
-    public Money(String inputMoney) 
-	    throws InvalidMoneyTypeException, InvalidMoneyValueException {
+    public Money(String inputMoney) throws InvalidMoneyTypeException,
+	    InvalidMoneyValueException {
 	try {
 	    String[] moneyExpression = inputMoney.split(" ");
 	    String valueFromInput = moneyExpression[MONEY_VALUE_INDEX];
 	    String currencyFromInput = moneyExpression[MONEY_CURRENCY_INDEX];
-	    String valueString = normalizeValueStringFormat(valueFromInput);
 
 	    currency = currencyTypeFromString(currencyFromInput);
 	    wholeNumber = extractWholeNumber(valueFromInput);
 	    decimalNumber = extractDecimalNumber(valueFromInput);
+	    String valueString = normalizeValueStringFormat(valueFromInput);
 	    this.value = new BigDecimal(valueString);
 	} catch (NumberFormatException e) {
 	    throw new InvalidMoneyValueException(inputMoney
